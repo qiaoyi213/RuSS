@@ -36,6 +36,8 @@ tauri-plugin-log = "2.0.0-rc"
 walkdir = "2"
 tauri-plugin-positioner = { version = "2.0.0", features = ["tray-icon"] }
 sqlx = { version = "0.8.3", features = ["sqlite", "runtime-tokio"] }
+rss = "2.0.11"
+reqwest = "0.12.12"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"

@@ -1,7 +1,3 @@
 # RuSS
 
-A simple RSS reader based on Rust and Tauri.
-
-## TODO
-
--   Read RSS feed
+A simple cross-platform RSS reader based on Rust and Tauri.
