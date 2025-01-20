@@ -1,10 +1,11 @@
 <script setup>
-    import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '@tauri-apps/api/core';
+import feedCard from './feed.vue';
 </script>
 
 <template>
     <h1>RuSS</h1>
-
+    <feedCard />
 </template>
 
 <style scoped>
