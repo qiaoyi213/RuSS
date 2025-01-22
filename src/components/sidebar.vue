@@ -1,11 +1,17 @@
 <script>
-
+import following from './following.vue';
+export default {
+    components: {
+        following,
+    }
+}
 </script>
 
 <template>
     <div class="sidebar">
-        <h1>Russ</h1>
-
+        <h1>RuSS</h1>
+        <button class="new_button">+</button>
+        <following />
     </div> 
 </template>
 
