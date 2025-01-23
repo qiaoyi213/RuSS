@@ -1,19 +1,24 @@
 <script>
-    export default {
-        data() {
-            return {
-                followings: [
-                    {
-                        name: "NHK",
-                    },
-                    {
-                        name: "CNN",
-                    }
-                ]
-            }
-        }
+import { NButton } from "naive-ui";
 
+export default {
+    components: {
+        NButton
+    },
+    data() {
+        return {
+            followings: [
+                {
+                    name: "NHK",
+                },
+                {
+                    name: "CNN",
+                }
+            ]
+        }
     }
+}
+
 </script>
 
 <template>
@@ -22,9 +27,7 @@
     </div>
     <div class="followings">
         <div class="following" v-for="following in followings">
-            <button>
-                {{ following.name }}
-            </button>
+            <n-button> {{ following.name }} </n-button>
         </div>
     </div>
 </template>

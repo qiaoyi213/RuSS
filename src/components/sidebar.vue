@@ -1,8 +1,11 @@
 <script>
 import following from './following.vue';
+import { NButton } from 'naive-ui';
+
 export default {
     components: {
         following,
+        NButton
     }
 }
 </script>
@@ -10,7 +13,7 @@ export default {
 <template>
     <div class="sidebar">
         <h1>RuSS</h1>
-        <button class="new_button">+</button>
+        <n-button>New RSS</n-button>
         <following />
     </div> 
 </template>
