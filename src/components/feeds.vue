@@ -12,8 +12,7 @@ export default {
         NCard,
         NList,
         NListItem,
-        NScrollbar,
-        greet
+        NScrollbar
     },
     data() {
         return {
@@ -32,6 +31,13 @@ export default {
             ]
         }
     },
+    setup() {
+        return {
+            greet() {
+                console.log("CLICK CARD")
+            }
+        }
+    }
 }
 </script>
 
