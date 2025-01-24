@@ -40,7 +40,7 @@ export default {
 }
 .following {
     border-radius: 2px;
-    background-color: white;
+    background-color: green;
 }
 
 </style>

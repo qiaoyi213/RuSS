@@ -31,7 +31,7 @@ export default {
 .sidebar {
     background-color: #27282a;
     width: 255pt;
-    height: 720pt;
+    max-height: 100%;
 }
 </style>
 
