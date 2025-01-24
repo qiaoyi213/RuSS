@@ -1,6 +1,15 @@
 <script>
 export default {
     components: {
+    }, 
+    data() {
+        return {
+            feed: {
+                title: "Some news title",
+                abstract: "News abstract",
+                content: "Lorem ipsum bababa",
+            }
+        }
     }
 }
 </script>
