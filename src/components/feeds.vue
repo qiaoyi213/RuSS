@@ -2,6 +2,7 @@
 import { NCard, NList, NListItem, NScrollbar, NDrawer, NDrawerContent, NButton } from 'naive-ui'
 import { ref } from 'vue';
 import reader from './reader.vue';
+import { invoke } from '@tauri-apps/api/core';
 
 function greet(event) {
   alert(`Hello ${name.value}!`)
@@ -10,6 +11,7 @@ function greet(event) {
     alert(event.target.tagName)
   }
 }
+
 export default {
     components: {
         NCard,
@@ -24,20 +26,7 @@ export default {
     data() {
         return {
             card_title: "abc",
-            feeds_list: [
-                {
-                    title: "First Feed",
-                    abstract: "This is the first feed",
-                    source: "https://abc.com",
-                    content: "The content, first feed",
-                }, 
-                {
-                    title: "Second Feed",
-                    abstract: "This is the second feed",
-                    source: "https://cde.com",
-                    content: "The content, second feed",
-                }
-            ]
+            
         }
     },
     methods: {
@@ -56,13 +45,39 @@ export default {
                 emit_msg.value = feed_url; 
                 active.value = true;
         }
-
-
+        const feeds_list = ref([
+                {
+                    title: "First Feed",
+                    description: "This is the first feed",
+                    source: "https://abc.com",
+                    content: "The content, first feed",
+                }, 
+                {
+                    title: "Second Feed",
+                    description: "This is the second feed",
+                    source: "https://cde.com",
+                    content: "The content, second feed",
+                }
+            ]);
+        const refresh = () => {
+            invoke('example_feed', { url: "https://feeds.feedburner.com/rsscna/intworld"})
+                .then(response => {
+                    console.log(response[0])
+                    for(let i = 0; i < response.length; i++){
+                        feeds_list.value[i] = JSON.parse(response[i]);
+                    }
+                    
+                })
+        }
+        const nowReading = ref("");
         return {
             active,
             reading,
             read_feed,
-            emit_msg
+            emit_msg,
+            refresh,
+            feeds_list,
+            nowReading
         }
     }
 }
@@ -70,20 +85,17 @@ export default {
 
 
 <template>
+        <n-button @click="refresh">Refresh</n-button>
         <n-list hoverable clickable>
             <n-list-item v-for="feed in feeds_list">
                 <n-card v-bind:title="feed.title" style="width:500px;" @click="read_feed(feed.title)">
-                    <template #cover>
-                        <img class="image" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.thoughtco.com%2Fthmb%2Fe6FEm0_xDZ_kiajFKMFrBO6hgb0%3D%2F1500x0%2Ffilters%3Ano_upscale()%3Amax_bytes(150000)%3Astrip_icc()%2F5925354646_581f193d2c_o-56a28a335f9b58b7d0cbebe0.jpg&f=1&nofb=1&ipt=d8a5dbab505e5f9caae7952d248356172c1547b8a09fde16b1e975c0fca349ab&ipo=images" />
-                    </template>
-                    {{ feed.abstract }}
+                    {{ feed.description }}
                 </n-card>
             </n-list-item>
         </n-list>
 
         <n-drawer v-model:show="active" :width="502" :placement="right">
-            <n-drawer-content title="Feed" closable :native-scrollbar="false">
-                abc    
+            <n-drawer-content v-bind:title="emit_msg" closable :native-scrollbar="false">
                 <n-button @click="focusReading(emit_msg)">
                     Focus
                 </n-button>

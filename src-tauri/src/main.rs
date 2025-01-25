@@ -11,15 +11,9 @@ fn greet(name: &str) -> String {
 }
 
 
-
 fn main() {
-    let file = File::open("/Users/linqiaoyi/allProject/RuSS/src-tauri/feeds/example.xml").unwrap();
-    let channel = Channel::read_from(BufReader::new(file)).unwrap();
-    //let channel = app_lib::core::rss::getFeedByUrl("https://www.nhk.or.jp/rss/news/cat0.xml".to_string());
-
-    //println!("{}", channel.unwrap().items.len().to_string());
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, app_lib::core::rss::example_feed])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
