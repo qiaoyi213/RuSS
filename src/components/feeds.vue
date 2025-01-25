@@ -1,5 +1,5 @@
 <script>
-import { NCard, NList, NListItem, NScrollbar, NDrawer, NDrawerContent} from 'naive-ui'
+import { NCard, NList, NListItem, NScrollbar, NDrawer, NDrawerContent, NButton } from 'naive-ui'
 import { ref } from 'vue';
 function greet(event) {
   alert(`Hello ${name.value}!`)
@@ -15,7 +15,8 @@ export default {
         NListItem,
         NScrollbar,
         NDrawer,
-        NDrawerContent
+        NDrawerContent,
+        NButton
     },
     data() {
         return {
@@ -45,7 +46,7 @@ export default {
         }
         return {
             active,
-            read_feed
+            read_feed,
         }
     }
 }
@@ -63,9 +64,13 @@ export default {
                 </n-card>
             </n-list-item>
         </n-list>
+
         <n-drawer v-model:show="active" :width="502" :placement="right">
-            <n-drawer-content title="Feed" closable>
-                ABC
+            <n-drawer-content title="Feed" closable :native-scrollbar="false">
+                abc    
+                <n-button>
+                    Focus
+                </n-button>
             </n-drawer-content>
         </n-drawer>
 </template>
