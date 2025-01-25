@@ -41,30 +41,28 @@ export default {
         }
     },
     methods: {
-        focusReading () {
-            this.$emit("MessageSent", true);
+        focusReading (message) {
+            console.log(message);
+            this.$emit("MessageSent", message);
             this.active = false;
         }
     },
     setup() {
         const active = ref(false);
         const reading = ref(false);
+        const emit_msg = ref("");
         const read_feed = (feed_url) => {
                 // channel = invoke('getFeedByUrl', feed_url);
+                emit_msg.value = feed_url; 
                 active.value = true;
         }
 
-        const reading_mode = () => {
-            active.value = false;
-            reading.value = true;
-            $emit('readingMode', true);
-        }
 
         return {
             active,
             reading,
             read_feed,
-            reading_mode
+            emit_msg
         }
     }
 }
@@ -86,7 +84,7 @@ export default {
         <n-drawer v-model:show="active" :width="502" :placement="right">
             <n-drawer-content title="Feed" closable :native-scrollbar="false">
                 abc    
-                <n-button @click="focusReading">
+                <n-button @click="focusReading(emit_msg)">
                     Focus
                 </n-button>
             </n-drawer-content>

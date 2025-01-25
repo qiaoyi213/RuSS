@@ -12,6 +12,9 @@ export default {
             this.$emit("messageSent", "closeReader");
         } 
     },
+    props: [
+        'abc'
+    ],
     data() {
         return {
             feed: {
@@ -26,6 +29,7 @@ export default {
 
 <template>
     <h1>{{feed.title}}</h1>
+    <h2>{{ abc }}</h2>
     <n-button @click="closeReader">Close</n-button> 
 </template>
 

@@ -4,6 +4,7 @@ import reader from './components/reader.vue';
 import feeds from './components/feeds.vue';
 import { NModal, NCard, NInput, NLayout, NLayoutSider } from 'naive-ui';
 import { ref } from 'vue';
+const read_title = ref("");
 export default {
     components: {
         sidebar,
@@ -19,12 +20,14 @@ export default {
         return {
             showModal: ref(false),
             showReader: ref(false),
+            read_title,
             onNegativeClick() {
                 console.log("A")
             },
             onPositiveClick() {
                 console.log("G")
             }
+
         }
     },
     methods: {
@@ -34,7 +37,7 @@ export default {
             console.log(this.showModal)
         },
         handleReading(message) {
-            console.log("Reading Mode");
+            read_title.value = message; 
             this.showReader = true;
         },
         handleCloseReader(message) {
@@ -71,7 +74,7 @@ export default {
     </n-layout>
     </div>
     <div style="position: absolute; z-index: 2; top:50px; left:50px; background-color:white; border-radius: 10px;">
-        <reader style="position: absolute; z-index: 2; top: 50px; left:50px; width:50px; height: 50px;" v-if="showReader" @messageSent="handleCloseReader"/>
+        <reader v-bind:abc="read_title" style="position: absolute; z-index: 2; top: 50px; left:50px; width:50px; height: 50px;" v-if="showReader" @messageSent="handleCloseReader"/>
     </div>
 </template>
 
