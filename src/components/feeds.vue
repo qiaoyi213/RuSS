@@ -43,7 +43,7 @@ export default {
     },
     methods: {
         focusReading () {
-            this.$emit("MessageSent", "123");
+            this.$emit("MessageSent", true);
             this.active = false;
         }
     },
