@@ -36,7 +36,6 @@ export default {
                     abstract: "This is the second feed",
                     source: "https://cde.com",
                     content: "The content, second feed",
-
                 }
             ]
         }

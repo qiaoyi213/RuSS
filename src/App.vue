@@ -45,16 +45,15 @@ export default {
 </script>
 
 <template>
-    <n-layout style="height: 720px; position: relative">
+    <div style="position: relative; z-index: 1;">  
+    <n-layout style="height: 720px; position: relative;">
         <n-layout position="absolute" has-sider>
             <n-layout-sider content-sytle="padding: 24px;" :native-scrollbar="false">
                 <sidebar @messageSent="handleNewRSS" />
             </n-layout-sider>
             
             <n-layout content-styel="padding: 24px;" :native-scrollbar="false">
-                <reader v-if="showReader" @messageSent="handleCloseReader"/>
                 <feeds @MessageSent="handleReading" />
-                
             </n-layout>
 
             <n-modal v-model:show="showModal"
@@ -70,6 +69,10 @@ export default {
             </n-modal>
         </n-layout>
     </n-layout>
+    </div>
+    <div style="position: absolute; z-index: 2; top:50px; left:50px; background-color:white; border-radius: 10px;">
+        <reader style="position: absolute; z-index: 2; top: 50px; left:50px; width:50px; height: 50px;" v-if="showReader" @messageSent="handleCloseReader"/>
+    </div>
 </template>
 
 <style>
