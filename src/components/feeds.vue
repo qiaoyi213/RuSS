@@ -1,6 +1,8 @@
 <script>
 import { NCard, NList, NListItem, NScrollbar, NDrawer, NDrawerContent, NButton } from 'naive-ui'
 import { ref } from 'vue';
+import reader from './reader.vue';
+
 function greet(event) {
   alert(`Hello ${name.value}!`)
   // `event` 是 DOM 原生事件
@@ -16,7 +18,8 @@ export default {
         NScrollbar,
         NDrawer,
         NDrawerContent,
-        NButton
+        NButton,
+        reader
     },
     data() {
         return {
@@ -38,15 +41,31 @@ export default {
             ]
         }
     },
+    methods: {
+        focusReading () {
+            this.$emit("MessageSent", "123");
+            this.active = false;
+        }
+    },
     setup() {
         const active = ref(false);
+        const reading = ref(false);
         const read_feed = (feed_url) => {
                 // channel = invoke('getFeedByUrl', feed_url);
                 active.value = true;
         }
+
+        const reading_mode = () => {
+            active.value = false;
+            reading.value = true;
+            $emit('readingMode', true);
+        }
+
         return {
             active,
+            reading,
             read_feed,
+            reading_mode
         }
     }
 }
@@ -68,7 +87,7 @@ export default {
         <n-drawer v-model:show="active" :width="502" :placement="right">
             <n-drawer-content title="Feed" closable :native-scrollbar="false">
                 abc    
-                <n-button>
+                <n-button @click="focusReading">
                     Focus
                 </n-button>
             </n-drawer-content>

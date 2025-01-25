@@ -1,13 +1,13 @@
 <script> 
 import sidebar from './components/sidebar.vue';
-import feed from './components/feed.vue';
+import reader from './components/reader.vue';
 import feeds from './components/feeds.vue';
 import { NModal, NCard, NInput, NLayout, NLayoutSider } from 'naive-ui';
 import { ref } from 'vue';
 export default {
     components: {
         sidebar,
-        feed,
+        reader,
         feeds,
         NModal,
         NCard,
@@ -18,6 +18,7 @@ export default {
     setup() {
         return {
             showModal: ref(false),
+            showReader: ref(false),
             onNegativeClick() {
                 console.log("A")
             },
@@ -31,6 +32,13 @@ export default {
             console.log(message)
             this.showModal = true;
             console.log(this.showModal)
+        },
+        handleReading(message) {
+            console.log("Reading Mode");
+            this.showReader = true;
+        },
+        handleCloseReader(message) {
+            this.showReader = false;
         }
     }
 }
@@ -42,9 +50,11 @@ export default {
             <n-layout-sider content-sytle="padding: 24px;" :native-scrollbar="false">
                 <sidebar @messageSent="handleNewRSS" />
             </n-layout-sider>
-
+            
             <n-layout content-styel="padding: 24px;" :native-scrollbar="false">
-                <feeds/>
+                <reader v-if="showReader" @messageSent="handleCloseReader"/>
+                <feeds @MessageSent="handleReading" />
+                
             </n-layout>
 
             <n-modal v-model:show="showModal"
