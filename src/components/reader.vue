@@ -29,7 +29,7 @@ export default {
 
 <template>
     <h1>{{feed.title}}</h1>
-    <h2>{{ abc }}</h2>
+    <div v-html="abc"></div>
     <n-button @click="closeReader">Close</n-button> 
 </template>
 

@@ -82,11 +82,9 @@ export default {
                     for(let i = 0; i < response.length; i++){
                         feeds_list.value[i] = JSON.parse(response[i]);
                     }
-                    
                 })
         }
-        
-        return {
+               return {
             active,
             reading,
             read_feed,
@@ -113,7 +111,7 @@ export default {
 
         <n-drawer v-model:show="active" :width="502" :placement="right">
             <n-drawer-content v-bind:title="emit_msg" closable :native-scrollbar="false">
-                <n-button @click="focusReading(emit_msg)">
+                <n-button @click="focusReading(readHtml)">
                     Focus
                 </n-button>
                 <div v-html="readHtml" ></div>
