@@ -3,7 +3,7 @@ import { NCard, NList, NListItem, NScrollbar, NDrawer, NDrawerContent, NButton }
 import { ref } from 'vue';
 import reader from './reader.vue';
 import { invoke } from '@tauri-apps/api/core';
-
+import { fetch } from '@tauri-apps/plugin-http';
 function greet(event) {
   alert(`Hello ${name.value}!`)
   // `event` 是 DOM 原生事件
@@ -26,7 +26,6 @@ export default {
     data() {
         return {
             card_title: "abc",
-            
         }
     },
     methods: {
@@ -34,30 +33,43 @@ export default {
             console.log(message);
             this.$emit("MessageSent", message);
             this.active = false;
-        }
+        },
     },
     setup() {
         const active = ref(false);
         const reading = ref(false);
         const emit_msg = ref("");
-        const read_feed = (feed_url) => {
+        const rss_source = ref(["https://feeds.feedburner.com/rsscna/intworld"]);
+        const nowReading = ref({});
+        const read_feed = async (feed_url) => {
                 // channel = invoke('getFeedByUrl', feed_url);
                 emit_msg.value = feed_url; 
+                    
+                fetch(feed_url, {
+                    method: 'GET',
+                }).then(async (response) => {
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let result = '';
+                    while(true) {
+                        const { done, value } = await reader.read();
+                        if(done) {
+                            break;
+                        }
+                        result += decoder.decode(value, { stream: true });
+                    }
+                    result += decoder.decode();
+                    console.log(result);
+                });
                 active.value = true;
         }
         const feeds_list = ref([
                 {
                     title: "First Feed",
                     description: "This is the first feed",
-                    source: "https://abc.com",
+                    link: "https://abc.com",
                     content: "The content, first feed",
-                }, 
-                {
-                    title: "Second Feed",
-                    description: "This is the second feed",
-                    source: "https://cde.com",
-                    content: "The content, second feed",
-                }
+                } 
             ]);
         const refresh = () => {
             invoke('example_feed', { url: "https://feeds.feedburner.com/rsscna/intworld"})
@@ -69,7 +81,7 @@ export default {
                     
                 })
         }
-        const nowReading = ref("");
+        
         return {
             active,
             reading,
@@ -88,7 +100,7 @@ export default {
         <n-button @click="refresh">Refresh</n-button>
         <n-list hoverable clickable>
             <n-list-item v-for="feed in feeds_list">
-                <n-card v-bind:title="feed.title" style="width:500px;" @click="read_feed(feed.title)">
+                <n-card v-bind:title="feed.title" style="width:500px;" @click="read_feed(feed.link)">
                     {{ feed.description }}
                 </n-card>
             </n-list-item>

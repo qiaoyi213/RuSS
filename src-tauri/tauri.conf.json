@@ -15,8 +15,8 @@
                 "title": "RuSS",
                 "width": 800,
                 "height": 500,
-                "minWidth": 800,
-                "minHeight": 500,
+                "minWidth": 600,
+                "minHeight": 300,
                 "resizable": true,
                 "fullscreen": false,
                 "decorations": true
