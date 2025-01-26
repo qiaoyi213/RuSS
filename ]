@@ -42,31 +42,31 @@ export default {
         const emit_msg = ref("");
         const rss_source = ref(["https://feeds.feedburner.com/rsscna/intworld"]);
         const nowReading = ref({});
-        const readHtml = ref("");
         const read_feed = async (feed_url) => {
                 // channel = invoke('getFeedByUrl', feed_url);
                 emit_msg.value = feed_url; 
-                active.value = true;   
-
+                    
                 fetch(feed_url, {
                     method: 'GET',
                 }).then(async (response) => {
-                    const htmlText = await response.text().then((res) => {return res});
-                    console.log(htmlText);
+                    /*
+                    const htmlText = response.text();
                     const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    const doc = parser.parseFromString(htmlText);
+
                     const reader = new Readability(doc); 
                     let article = reader.parse();
                     if (article) {
                         console.log("title:", article.title);
                         console.log("content:", article.content);
-                        readHtml.value = article.content;
                     } else {
                         console.log("Cloud not extract the article");
                     }
+                    */
                 })
                 .catch(err => console.error("fetch error", err));
-        } 
+                active.value = true;
+        }
         const feeds_list = ref([
                 {
                     title: "First Feed",
@@ -93,8 +93,7 @@ export default {
             emit_msg,
             refresh,
             feeds_list,
-            nowReading,
-            readHtml
+            nowReading
         }
     }
 }
@@ -116,7 +115,6 @@ export default {
                 <n-button @click="focusReading(emit_msg)">
                     Focus
                 </n-button>
-                <div v-html="readHtml" ></div>
             </n-drawer-content>
         </n-drawer>
 </template>
