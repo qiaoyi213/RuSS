@@ -74,7 +74,7 @@ export default {
     </n-layout>
     </div>
     <div style="position: absolute; z-index: 2; top:50px; left:50px; background-color:white; border-radius: 10px;">
-        <reader v-bind:feed="feed" style="position: absolute; z-index: 2; top: 50px; left:50px; width:50px; height: 50px;" v-if="showReader" @messageSent="handleCloseReader"/>
+        <reader v-bind:feed="feed" style="position: absolute; z-index: 2; top: 50px; left:50px; width:800px; height: 600px;" v-if="showReader" @messageSent="handleCloseReader"/>
     </div>
 </template>
 

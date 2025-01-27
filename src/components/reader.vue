@@ -1,10 +1,11 @@
 <script>
-import { NCard, NButton } from 'naive-ui';
+import { NCard, NButton, NScrollbar } from 'naive-ui';
 import { ref } from 'vue';
 export default {
     components: {
         NCard,
-        NButton
+        NButton,
+        NScrollbar
     }, 
     methods: {
         closeReader() {
@@ -19,8 +20,15 @@ export default {
 </script>
 
 <template>
-        <h1>{{feed['title']}}</h1>
+    <n-card>
+        <n-scrollbar style="max-height: 800px;">
+        <div>
+            {{ feed['title'] }}
+        </div>
         <div v-html="feed['content']"></div>
+
         <n-button @click="closeReader">Close</n-button> 
+        </n-scrollbar>
+    </n-card>
 </template>
 

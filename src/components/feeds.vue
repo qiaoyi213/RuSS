@@ -105,7 +105,7 @@ export default {
             </n-list-item>
         </n-list>
 
-        <n-drawer v-model:show="active" :width="502" :placement="right">
+        <n-drawer v-model:show="active" resizable :default-width="600" :placement="right">
             <n-drawer-content v-bind:title="feed['title']" closable :native-scrollbar="false">
                 <n-button @click="focusReading(feed)">
                     Focus
