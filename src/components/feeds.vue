@@ -30,10 +30,12 @@ export default {
             this.active = false;
         },
     },
+    props: [
+        'sources'
+    ],
     setup() {
         const active = ref(false);
         const reading = ref(false);
-        const rss_source = ref(["https://feeds.feedburner.com/rsscna/intworld"]);
         const nowReading = ref({});
         const readHtml = ref("");
         const feed = ref({});
@@ -71,6 +73,7 @@ export default {
                 } 
             ]);
         const refresh = () => {
+            // read from rss sources
             invoke('example_feed', { url: "https://feeds.feedburner.com/rsscna/intworld"})
                 .then(response => {
                     console.log(response[0])

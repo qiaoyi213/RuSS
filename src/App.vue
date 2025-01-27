@@ -17,10 +17,13 @@ export default {
     },
     setup() {
         const feed = ref({});
+        const sources = ref([]);
+
         return {
             showModal: ref(false),
             showReader: ref(false),
             feed,
+            sources,
             onNegativeClick() {
                 console.log("A")
             },
@@ -56,7 +59,7 @@ export default {
             </n-layout-sider>
             
             <n-layout content-styel="padding: 24px;" :native-scrollbar="false">
-                <feeds @MessageSent="handleReading" />
+                <feeds @MessageSent="handleReading" v-bind:sources="sources" />
             </n-layout>
 
             <n-modal v-model:show="showModal"
@@ -73,8 +76,8 @@ export default {
         </n-layout>
     </n-layout>
     </div>
-    <div style="position: absolute; z-index: 2; top:50px; left:50px; background-color:white; border-radius: 10px;">
-        <reader v-bind:feed="feed" style="position: absolute; z-index: 2; top: 50px; left:50px; width:800px; height: 600px;" v-if="showReader" @messageSent="handleCloseReader"/>
+    <div style="position: absolute; z-index: 2; top:10px; left:10px; right:10px; border-radius: 10px;">
+        <reader v-bind:feed="feed" style="position: absolute; z-index: 2; width:800px;" v-if="showReader" @messageSent="handleCloseReader"/>
     </div>
 </template>
 

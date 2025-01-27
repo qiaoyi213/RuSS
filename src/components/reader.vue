@@ -1,11 +1,12 @@
 <script>
-import { NCard, NButton, NScrollbar } from 'naive-ui';
+import { NCard, NButton, NScrollbar, NAlert } from 'naive-ui';
 import { ref } from 'vue';
 export default {
     components: {
         NCard,
         NButton,
-        NScrollbar
+        NScrollbar,
+        NAlert
     }, 
     methods: {
         closeReader() {
@@ -25,6 +26,9 @@ export default {
         <div>
             {{ feed['title'] }}
         </div>
+        <n-alert title="Warning" type="warning">
+            This is provided by Mozilla Readability. If you have trouble when you reaeding, please click here to read in your browser.
+        </n-alert>
         <div v-html="feed['content']"></div>
 
         <n-button @click="closeReader">Close</n-button> 
