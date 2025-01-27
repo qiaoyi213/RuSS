@@ -24,14 +24,8 @@ export default {
         NButton,
         reader
     },
-    data() {
-        return {
-            card_title: "abc",
-        }
-    },
     methods: {
         focusReading (message) {
-            console.log(message);
             this.$emit("MessageSent", message);
             this.active = false;
         },
@@ -39,13 +33,12 @@ export default {
     setup() {
         const active = ref(false);
         const reading = ref(false);
-        const emit_msg = ref("");
         const rss_source = ref(["https://feeds.feedburner.com/rsscna/intworld"]);
         const nowReading = ref({});
         const readHtml = ref("");
+        const feed = ref({});
         const read_feed = async (feed_url) => {
                 // channel = invoke('getFeedByUrl', feed_url);
-                emit_msg.value = feed_url; 
                 active.value = true;   
 
                 fetch(feed_url, {
@@ -61,6 +54,8 @@ export default {
                         console.log("title:", article.title);
                         console.log("content:", article.content);
                         readHtml.value = article.content;
+                        feed.value["title"] = article.title;
+                        feed.value["content"] = article.content;
                     } else {
                         console.log("Cloud not extract the article");
                     }
@@ -88,11 +83,12 @@ export default {
             active,
             reading,
             read_feed,
-            emit_msg,
             refresh,
             feeds_list,
             nowReading,
-            readHtml
+            readHtml,
+            feed
+
         }
     }
 }
@@ -110,8 +106,8 @@ export default {
         </n-list>
 
         <n-drawer v-model:show="active" :width="502" :placement="right">
-            <n-drawer-content v-bind:title="emit_msg" closable :native-scrollbar="false">
-                <n-button @click="focusReading(readHtml)">
+            <n-drawer-content v-bind:title="feed['title']" closable :native-scrollbar="false">
+                <n-button @click="focusReading(feed)">
                     Focus
                 </n-button>
                 <div v-html="readHtml" ></div>
