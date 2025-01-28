@@ -1,17 +1,10 @@
 <script>
 import { NCard, NList, NListItem, NScrollbar, NDrawer, NDrawerContent, NButton } from 'naive-ui'
-import { ref } from 'vue';
+import { ref, defineProps } from 'vue';
 import reader from './reader.vue';
 import { invoke } from '@tauri-apps/api/core';
 import { fetch } from '@tauri-apps/plugin-http';
 import { Readability } from '@mozilla/readability';
-function greet(event) {
-  alert(`Hello ${name.value}!`)
-  // `event` 是 DOM 原生事件
-  if (event) {
-    alert(event.target.tagName)
-  }
-}
 
 export default {
     components: {
@@ -33,7 +26,7 @@ export default {
     props: [
         'sources'
     ],
-    setup() {
+    setup(props) {
         const active = ref(false);
         const reading = ref(false);
         const nowReading = ref({});
@@ -42,7 +35,7 @@ export default {
         const read_feed = async (feed_url) => {
                 // channel = invoke('getFeedByUrl', feed_url);
                 active.value = true;   
-
+            
                 fetch(feed_url, {
                     method: 'GET',
                 }).then(async (response) => {
@@ -64,25 +57,23 @@ export default {
                 })
                 .catch(err => console.error("fetch error", err));
         } 
-        const feeds_list = ref([
-                {
-                    title: "First Feed",
-                    description: "This is the first feed",
-                    link: "https://abc.com",
-                    content: "The content, first feed",
-                } 
-            ]);
+        const feeds_list = ref([]);
+
         const refresh = () => {
             // read from rss sources
-            invoke('example_feed', { url: "https://feeds.feedburner.com/rsscna/intworld"})
-                .then(response => {
-                    console.log(response[0])
-                    for(let i = 0; i < response.length; i++){
-                        feeds_list.value[i] = JSON.parse(response[i]);
-                    }
-                })
+            feeds_list.value = [];
+            for(let i = 0;i<props.sources.length;i++){
+                invoke('example_feed', { url: props.sources[i].link })
+                    .then(response => {
+                        for(let j= 0; j < response.length;j++) {
+                            feeds_list.value[feeds_list.value.length] = JSON.parse(response[j]);
+                        }
+                    })
+                    .catch(err => console.log(err));
+            }
         }
-               return {
+
+        return {
             active,
             reading,
             read_feed,

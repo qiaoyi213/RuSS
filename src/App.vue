@@ -18,7 +18,7 @@ export default {
     setup() {
         const feed = ref({});
         const sources = ref([]);
-
+         
         return {
             showModal: ref(false),
             showReader: ref(false),
@@ -45,6 +45,11 @@ export default {
         },
         handleCloseReader(message) {
             this.showReader = false;
+        },
+        changeSource(sources) {
+            this.sources = sources;
+            console.log("CHANGE HERE", this.sources)
+
         }
     }
 }
@@ -55,7 +60,7 @@ export default {
     <n-layout style="height: 720px; position: relative;">
         <n-layout position="absolute" has-sider>
             <n-layout-sider content-sytle="padding: 24px;" :native-scrollbar="false">
-                <sidebar @messageSent="handleNewRSS" />
+                <sidebar @messageSent="handleNewRSS" @changeSource="changeSource" />
             </n-layout-sider>
             
             <n-layout content-styel="padding: 24px;" :native-scrollbar="false">
@@ -76,8 +81,8 @@ export default {
         </n-layout>
     </n-layout>
     </div>
-    <div style="position: absolute; z-index: 2; top:10px; left:10px; right:10px; border-radius: 10px;">
-        <reader v-bind:feed="feed" style="position: absolute; z-index: 2; width:800px;" v-if="showReader" @messageSent="handleCloseReader"/>
+    <div style="position: absolute; z-index: 2; top:1vh; left:1vw; right:1vw; border-radius: 10px;">
+        <reader v-bind:feed="feed"  v-if="showReader" @messageSent="handleCloseReader"/>
     </div>
 </template>
 

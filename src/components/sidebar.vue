@@ -11,6 +11,10 @@ export default {
     methods: {
         showModal (){
             this.$emit('messageSent', 'Hello Parent');
+        },
+
+        changeSource(source) {
+            this.$emit('changeSource', source)  
         }
     }
 }
@@ -23,7 +27,7 @@ export default {
             New RSS
         </n-button>
 
-        <following />
+        <following @changeSource="changeSource" />
     </div> 
 </template>
 

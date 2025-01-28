@@ -1,9 +1,12 @@
 <script>
-import { NButton } from "naive-ui";
+import { NButton, NMenu } from "naive-ui";
+import { invoke } from '@tauri-apps/api/core';
+import { ref, defineEmits } from 'vue';
 
 export default {
     components: {
-        NButton
+        NButton,
+        NMenu,
     },
     data() {
         return {
@@ -18,6 +21,26 @@ export default {
                 }
             ]
         }
+    },
+    methods: {
+        initSource(){
+            this.$emit('changeSource', this.sources.value);   
+        },
+        sourcesClick(source) {
+            this.$emit('changeSource', [source]); 
+        }
+
+    },
+    setup(props, context) {
+        const sources = ref({});
+        invoke('getSources')
+            .then(response => {
+                sources.value = JSON.parse(response);
+                context.emit('changeSource', sources.value.sources);
+            }); 
+        return {
+            sources,
+        }
     }
 }
 
@@ -28,10 +51,11 @@ export default {
         <h1>Following</h1>
     </div>
     <div class="followings">
-        <div class="following" v-for="following in followings">
-            <n-button> {{ following.name }} </n-button>
+        <div class="following" v-for="source in sources.sources">
+            <n-button @click="sourcesClick(source)"> {{ source.title }} </n-button>
         </div>
     </div>
+
 </template>
 
 <style>

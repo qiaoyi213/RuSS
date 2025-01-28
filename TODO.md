@@ -11,3 +11,6 @@
 ## todos
 
 -   build MVP
+-   fresh the page accroding the rss sources passing from App.vue
+-   Implement setting page
+-   Implement Window Menu

@@ -6,8 +6,29 @@
     "permissions": [
         {
             "identifier": "http:default",
-            "allow": [{ "url": "https://**" }],
-            "deny": [{ "url": "https://private.tauri.app" }]
+            "allow": [
+                {
+                    "url": "https://**"
+                }
+            ],
+            "deny": [
+                {
+                    "url": "https://private.tauri.app"
+                }
+            ]
+        },
+        "fs:default",
+        "fs:allow-app-read-recursive",
+        "fs:allow-app-write-recursive",
+        "http:default",
+        {
+            "identifier": "fs:allow-app-write",
+            "allow": [
+                {
+                    "path": "$APPDATA/*"
+                }
+            ]
         }
     ]
 }
+
