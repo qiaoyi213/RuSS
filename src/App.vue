@@ -4,6 +4,7 @@ import reader from './components/reader.vue';
 import feeds from './components/feeds.vue';
 import { NModal, NCard, NInput, NLayout, NLayoutSider } from 'naive-ui';
 import { ref } from 'vue';
+import { invoke } from '@tauri-apps/api/core';
 export default {
     components: {
         sidebar,
@@ -18,18 +19,22 @@ export default {
     setup() {
         const feed = ref({});
         const sources = ref([]);
+        const newSource = ref("");
          
         return {
             showModal: ref(false),
             showReader: ref(false),
             feed,
             sources,
+            newSource,
             onNegativeClick() {
                 console.log("A")
             },
-            onPositiveClick() {
-                console.log("G")
-            }
+            onPositiveClick() { 
+                console.log(newSource.value);
+
+                invoke('addSource', {url: "abcde"});
+            },
 
         }
     },
@@ -76,7 +81,7 @@ export default {
                 @positive-click="onPositiveClick"
                 @negative-click="onNegativeClick"
             >
-                <n-input></n-input>
+                <n-input v-model:value="newSource"></n-input>
             </n-modal>
         </n-layout>
     </n-layout>

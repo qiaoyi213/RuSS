@@ -17,7 +17,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             app_lib::core::rss::example_feed,
-            app_lib::core::rss::getSources
+            app_lib::core::rss::getSources,
+            app_lib::core::rss::addSource
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

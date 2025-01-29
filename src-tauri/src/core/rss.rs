@@ -6,19 +6,19 @@ use serde_json::{json,Value};
 use std::error::Error;
 use std::io::{Read, Write, BufReader};
 use serde::{Serialize, Deserialize};
-use std::fs::{self, File};
+use std::fs::{self, File, OpenOptions};
 use std::vec::Vec;
 use std::path::Path;
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Source {
+pub struct Source {
     title: String,
     description: String,
     link: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct SourcesFile {
+pub struct SourcesFile {
     sources: Vec<Source>,
     favorites: Vec<Source>,
 }
@@ -73,18 +73,96 @@ pub fn getSources() -> Result<String, String> {
         let mut file = File::create(path).map_err(|e| e.to_string())?;
         file.write_all(json_data.as_bytes()).map_err(|e| e.to_string())?;
 
-        Ok(json_data) // 返回空列表
+        Ok(json_data) 
+    }
+}
+#[tauri::command]
+pub fn addSource(url: String) -> Result<(), String> {
+
+    let path = Path::new("./sources.json");
+    let s = Source {
+        title:  "Example".to_string(),
+        description: "Des".to_string(),
+        link: url
+    };
+
+    if path.exists() {
+        let mut file = File::open(path).map_err(|e| e.to_string())?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|e| e.to_string())?;
+
+        let mut json_data: SourcesFile = serde_json::from_str(&contents).map_err(|e| e.to_string())?;
+
+        // todo: add the s into json_data
+        json_data.sources.push(s);
+        let json_data_str = serde_json::to_string_pretty(&json_data).map_err(|e| e.to_string())?;
+        let mut file = OpenOptions::new().write(true).truncate(true).open(path).map_err(|e| e.to_string())?;
+        file.write_all(json_data_str.as_bytes()).map_err(|e| e.to_string())?;
+        Ok(())
+    } else {
+
+        let mut new_sources_file = SourcesFile {
+            sources: vec![],
+            favorites: vec![]
+        };
+
+        new_sources_file.sources.push(s);
+
+        let json_data = serde_json::to_string_pretty(&new_sources_file).map_err(|e| e.to_string())?;
+        let mut file = File::create(path).map_err(|e| e.to_string())?;
+        file.write_all(json_data.as_bytes()).map_err(|e| e.to_string())?;
+        Ok(())
+    }
+}
+/*
+pub fn removeSource(Source: s) -> Result<(), String> {
+    // todo 
+    let path = Path::new("./sources.json");
+    if path.exists() {
+         
+    } else {
+
+    }
+}
+pub fn favoriteSource() -> Result<(), String> {
+    // todo
+    let path = Path::new("./sources.json");
+    if path.exists() {
+        let mut file = File::open(path.map_err(|e| e.to_string()))?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|e| e.to_string())?;
+
+        let json_data = serde_json::from_str(&contents).map_err(|e| e.to_string())?;
+        json_data["sources"]
+        // todo: add the s into json_data
+
+        let mut file = File::create(path.map_err(|e| e.to_string()))?;
+        file.write_all(json_data.as_bytes()).map_err(|e| e.to_string())?;
+        Ok(())
+    } else {
+        // todo: add the s into sources
+
+        Ok(())
     }
 }
 
-pub async fn getFeedByUrl(url: String) -> Result<Channel, Box<dyn Error>> {
-    let content = reqwest::get(url).await?.bytes().await?;
-    let channel = Channel::read_from(&content[..])?;
-    Ok(channel)
-}
+pub fn unfavoriteSource() -> Result<(), String> {
+    // todo
+    let path = Path::new("./sources.json");
+    if path.exists() {
+        let mut file = File::open(path.map_err(|e| e.to_string()))?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|e| e.to_string())?;
 
-fn getFeedFromFile(path: String) -> Result<Channel, Box<dyn Error>> {
-    let file = File::open(path).unwrap();
-    let channel = Channel::read_from(BufReader::new(file)).unwrap();
-    Ok(channel)
+        let json_data = serde_json::from_string(&contents).map_err(|e| e.to_string())?;
+
+        // todo: remove 
+
+        let mut file = File::create(path.map_err(|e| e.to_string()))?;
+        file.write_all(json_data.as_bytes()).map_err(|e| e.to_string())?;
+        Ok(())
+    } else {
+        Ok(())
+    }
 }
+*/
