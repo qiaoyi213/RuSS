@@ -11,14 +11,6 @@ export default {
     data() {
         return {
             followings: [
-                {
-                    name: "NHK",
-                    url: "https://some.com/rss.xml"
-                },
-                {
-                    name: "CNN",
-                    url: "https://some.com/rss.xml"
-                }
             ]
         }
     },

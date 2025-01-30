@@ -35,7 +35,7 @@ export default {
         const read_feed = async (feed_url) => {
                 // channel = invoke('getFeedByUrl', feed_url);
                 active.value = true;   
-            
+            invoke('getFeed', {url: feed_url}) ;      
                 fetch(feed_url, {
                     method: 'GET',
                 }).then(async (response) => {

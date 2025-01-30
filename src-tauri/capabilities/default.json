@@ -8,7 +8,7 @@
             "identifier": "http:default",
             "allow": [
                 {
-                    "url": "https://**"
+                    "url": ["https://**", "http://**"]
                 }
             ],
             "deny": [
@@ -20,15 +20,7 @@
         "fs:default",
         "fs:allow-app-read-recursive",
         "fs:allow-app-write-recursive",
-        "http:default",
-        {
-            "identifier": "fs:allow-app-write",
-            "allow": [
-                {
-                    "path": "$APPDATA/*"
-                }
-            ]
-        }
+        "http:default"
     ]
 }
 

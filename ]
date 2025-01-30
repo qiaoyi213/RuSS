@@ -20,26 +20,25 @@ export default {
         const feed = ref({});
         const sources = ref([]);
         const newSource = ref({});
-        const newSourceInput  = ref("");
+         
         return {
             showModal: ref(false),
             showReader: ref(false),
             feed,
             sources,
-            newSourceInput,
             newSource,
             onNegativeClick() {
                 console.log("A")
             },
             onPositiveClick() { 
+
                 invoke('addSource', {title: newSource.value.title, link: newSource.value.link, description: newSource.value.description});
             },
             onChange() {
                 
-                invoke('getSourceInfo', {url: newSourceInput.value}).then((msg)=> {
+                invoke('getSourceInfo', {url: newSource.value}).then((msg)=> {
                     newSource.value = JSON.parse(msg)
                 })
-
                 .catch(err => console.log(err));
             }
         }
@@ -85,7 +84,7 @@ export default {
                 @positive-click="onPositiveClick"
                 @negative-click="onNegativeClick"
             >
-                <n-input @change="onChange" v-model:value="newSourceInput"></n-input>
+                <n-input @change="onChange" v-model:value="newSource"></n-input>
             </n-modal>
         </n-layout>
     </n-layout>

@@ -18,7 +18,9 @@ fn main() {
             greet,
             app_lib::core::rss::example_feed,
             app_lib::core::rss::getSources,
-            app_lib::core::rss::addSource
+            app_lib::core::rss::addSource,
+            app_lib::core::rss::getSourceInfo,
+            app_lib::core::rss::getFeed
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -20,7 +20,6 @@ pub struct Source {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SourcesFile {
     sources: Vec<Source>,
-    favorites: Vec<Source>,
 }
 
 #[tauri::command]
@@ -43,13 +42,47 @@ pub fn example_feed(url: String) -> Result<Vec<String>, String> {
                     "description": item.description.as_ref().unwrap()
                 });
                 feeds.push(json.to_string());
-                println!("title")
             }
             Ok(feeds)
         }
         Err(e) => Err(e.to_string()),
     }
 }
+#[tauri::command]
+pub fn getFeed(url: String) -> Result<(), String> {
+    let response = reqwest::blocking::get(url.clone());
+    match response {
+        Ok(resp) => {
+            println!("{}", resp.text().unwrap_or_else(|_| "".to_string()));
+            Ok(())
+        }
+        Err(e) => Err(e.to_string())
+    }
+}
+
+#[tauri::command]
+pub fn getSourceInfo(url: String) -> Result<String, String> {
+    let response = reqwest::blocking::get(url.clone());
+    match response {
+        Ok(resp) => {
+            let body = resp.text().unwrap_or_else(|_| "".to_string());
+            let channel = Channel::read_from(body.as_bytes()).map_err(|e| e.to_string())?;
+                
+            let source = Source {
+                title: channel.title,
+                description: channel.description,
+                link: url.clone()
+            };
+            let mut ans = String::new();
+            
+            ans = serde_json::to_string_pretty(&source).map_err(|e| e.to_string())?;
+
+            Ok(ans)  
+        }
+        Err(e) => Err(e.to_string())
+    }
+}
+
 #[tauri::command]
 pub fn getSources() -> Result<String, String> {
     let path = Path::new("./sources.json");
@@ -65,8 +98,7 @@ pub fn getSources() -> Result<String, String> {
         Ok(contents)         
     } else {
         let new_sources_file = SourcesFile {
-            sources: vec![],
-            favorites: vec![]
+            sources: vec![]
         };
 
         let json_data = serde_json::to_string_pretty(&new_sources_file).map_err(|e| e.to_string())?;
@@ -77,13 +109,13 @@ pub fn getSources() -> Result<String, String> {
     }
 }
 #[tauri::command]
-pub fn addSource(url: String) -> Result<(), String> {
+pub fn addSource(title: String, description: String, link: String) -> Result<(), String> {
 
     let path = Path::new("./sources.json");
     let s = Source {
-        title:  "Example".to_string(),
-        description: "Des".to_string(),
-        link: url
+        title:  title,
+        description: description,
+        link: link
     };
 
     if path.exists() {
@@ -102,8 +134,7 @@ pub fn addSource(url: String) -> Result<(), String> {
     } else {
 
         let mut new_sources_file = SourcesFile {
-            sources: vec![],
-            favorites: vec![]
+            sources: vec![]
         };
 
         new_sources_file.sources.push(s);
@@ -114,6 +145,7 @@ pub fn addSource(url: String) -> Result<(), String> {
         Ok(())
     }
 }
+
 /*
 pub fn removeSource(Source: s) -> Result<(), String> {
     // todo 
@@ -124,45 +156,5 @@ pub fn removeSource(Source: s) -> Result<(), String> {
 
     }
 }
-pub fn favoriteSource() -> Result<(), String> {
-    // todo
-    let path = Path::new("./sources.json");
-    if path.exists() {
-        let mut file = File::open(path.map_err(|e| e.to_string()))?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).map_err(|e| e.to_string())?;
-
-        let json_data = serde_json::from_str(&contents).map_err(|e| e.to_string())?;
-        json_data["sources"]
-        // todo: add the s into json_data
-
-        let mut file = File::create(path.map_err(|e| e.to_string()))?;
-        file.write_all(json_data.as_bytes()).map_err(|e| e.to_string())?;
-        Ok(())
-    } else {
-        // todo: add the s into sources
-
-        Ok(())
-    }
-}
-
-pub fn unfavoriteSource() -> Result<(), String> {
-    // todo
-    let path = Path::new("./sources.json");
-    if path.exists() {
-        let mut file = File::open(path.map_err(|e| e.to_string()))?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).map_err(|e| e.to_string())?;
-
-        let json_data = serde_json::from_string(&contents).map_err(|e| e.to_string())?;
-
-        // todo: remove 
-
-        let mut file = File::create(path.map_err(|e| e.to_string()))?;
-        file.write_all(json_data.as_bytes()).map_err(|e| e.to_string())?;
-        Ok(())
-    } else {
-        Ok(())
-    }
-}
 */
+

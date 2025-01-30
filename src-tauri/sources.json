@@ -11,21 +11,9 @@
       "link": "https://www.nhk.or.jp/rss/news/cat0.xml"
     },
     {
-      "title": "abcd",
-      "description": "cvda",
-      "link": "abcvd"
-    },
-    {
-      "title": "Example",
-      "description": "Des",
-      "link": "abcde"
-    }
-  ],
-  "favorites": [
-    {
-      "title": "NHKニュース",
-      "description": "日本放送協会 NHKニュース",
-      "link": "https://www.nhk.or.jp/rss/news/cat0.xml"
+      "title": "即時新聞 - 自由時報",
+      "description": "自由時報電子報 即時新聞",
+      "link": "https://news.ltn.com.tw/rss/all.xml"
     }
   ]
 }
