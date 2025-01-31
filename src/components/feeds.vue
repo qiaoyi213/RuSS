@@ -51,7 +51,6 @@ export default {
                     } else {
                         console.log("Cloud not extract the article");
                     }
-
                 })
                 .catch(err => console.log(err));      
         } 
