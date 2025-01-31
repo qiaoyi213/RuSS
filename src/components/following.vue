@@ -4,6 +4,9 @@ import { invoke } from '@tauri-apps/api/core';
 import { ref, defineEmits } from 'vue';
 
 export default {
+    emits: [
+        'changeSource'
+    ],
     components: {
         NButton,
         NMenu,

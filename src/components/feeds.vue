@@ -7,6 +7,9 @@ import { fetch } from '@tauri-apps/plugin-http';
 import { Readability } from '@mozilla/readability';
 
 export default {
+    emits: [
+        'MessageSent'
+    ],
     components: {
         NCard,
         NList,
@@ -33,7 +36,7 @@ export default {
         const readHtml = ref("");
         const feed = ref({});
         const read_feed = async (feed_url) => {
-                active.value = true;   
+            active.value = true;   
             invoke('getFeed', {url: feed_url})
                 .then((response) => {
                     console.log(response)
@@ -57,7 +60,6 @@ export default {
         const feeds_list = ref([]);
 
         const refresh = () => {
-            // read from rss sources
             feeds_list.value = [];
             for(let i = 0;i<props.sources.length;i++){
                 invoke('example_feed', { url: props.sources[i].link })
@@ -69,7 +71,6 @@ export default {
                     .catch(err => console.log(err));
             }
         }
-
         return {
             active,
             reading,
@@ -79,7 +80,6 @@ export default {
             nowReading,
             readHtml,
             feed
-
         }
     }
 }
@@ -96,7 +96,7 @@ export default {
             </n-list-item>
         </n-list>
 
-        <n-drawer v-model:show="active" resizable :default-width="600" :placement="right">
+        <n-drawer v-model:show="active" resizable :default-width="600" placement="right">
             <n-drawer-content v-bind:title="feed['title']" closable :native-scrollbar="false">
                 <n-button @click="focusReading(feed)">
                     Focus

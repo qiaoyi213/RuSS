@@ -3,8 +3,9 @@ import sidebar from './components/sidebar.vue';
 import reader from './components/reader.vue';
 import feeds from './components/feeds.vue';
 import { NModal, NCard, NInput, NLayout, NLayoutSider } from 'naive-ui';
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
+
 export default {
     components: {
         sidebar,
@@ -21,6 +22,7 @@ export default {
         const sources = ref([]);
         const newSource = ref({});
         const newSourceInput  = ref("");
+
         return {
             showModal: ref(false),
             showReader: ref(false),
@@ -35,11 +37,9 @@ export default {
                 invoke('addSource', {title: newSource.value.title, link: newSource.value.link, description: newSource.value.description});
             },
             onChange() {
-                
                 invoke('getSourceInfo', {url: newSourceInput.value}).then((msg)=> {
                     newSource.value = JSON.parse(msg)
                 })
-
                 .catch(err => console.log(err));
             }
         }

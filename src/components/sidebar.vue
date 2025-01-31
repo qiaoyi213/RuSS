@@ -4,6 +4,10 @@ import following from './following.vue';
 import { NButton } from 'naive-ui';
 
 export default {
+    emits:[
+        'changeSource',
+        'messageSent'
+    ],
     components: {
         following,
         NButton
@@ -15,6 +19,7 @@ export default {
 
         changeSource(source) {
             this.$emit('changeSource', source)  
+
         }
     }
 }
