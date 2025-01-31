@@ -49,12 +49,11 @@ pub fn example_feed(url: String) -> Result<Vec<String>, String> {
     }
 }
 #[tauri::command]
-pub fn getFeed(url: String) -> Result<(), String> {
+pub fn getFeed(url: String) -> Result<String, String> {
     let response = reqwest::blocking::get(url.clone());
     match response {
         Ok(resp) => {
-            println!("{}", resp.text().unwrap_or_else(|_| "".to_string()));
-            Ok(())
+            Ok(resp.text().unwrap_or_else(|_| "".to_string()))
         }
         Err(e) => Err(e.to_string())
     }

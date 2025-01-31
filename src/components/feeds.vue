@@ -33,14 +33,11 @@ export default {
         const readHtml = ref("");
         const feed = ref({});
         const read_feed = async (feed_url) => {
-                // channel = invoke('getFeedByUrl', feed_url);
                 active.value = true;   
-            invoke('getFeed', {url: feed_url}) ;      
-                fetch(feed_url, {
-                    method: 'GET',
-                }).then(async (response) => {
-                    const htmlText = await response.text().then((res) => {return res});
-                    console.log(htmlText);
+            invoke('getFeed', {url: feed_url})
+                .then((response) => {
+                    console.log(response)
+                    let htmlText = response;
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
                     const reader = new Readability(doc); 
@@ -54,8 +51,9 @@ export default {
                     } else {
                         console.log("Cloud not extract the article");
                     }
+
                 })
-                .catch(err => console.error("fetch error", err));
+                .catch(err => console.log(err));      
         } 
         const feeds_list = ref([]);
 
