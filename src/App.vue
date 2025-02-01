@@ -33,18 +33,6 @@ export default {
             sources,
             newSourceInput,
             newSource,
-            onNegativeClick() {
-                console.log("A")
-            },
-            onPositiveClick() { 
-                invoke('addSource', {title: newSource.value.title, link: newSource.value.link, description: newSource.value.description});
-            },
-            onChange() {
-                invoke('getSourceInfo', {url: newSourceInput.value}).then((msg)=> {
-                    newSource.value = JSON.parse(msg)
-                })
-                .catch(err => console.log(err));
-            }
         }
     },
     methods: {
@@ -60,11 +48,8 @@ export default {
         handleCloseReader(message) {
             this.showReader = false;
         },
-        changeSource(sources) {
-            this.sources = sources;
-        },
         refresh() {
-            this.feeds_list.value = [];
+            this.feeds_list = [];
             for(let i = 0;i<this.sources.length;i++){
                 invoke('example_feed', { url: this.sources[i].link })
                     .then(response => {
@@ -74,7 +59,26 @@ export default {
                     })
                     .catch(err => console.log(err));
             }
-        }
+        },
+        changeSource(sources) {
+            this.sources = sources;
+            console.log(sources)
+            this.refresh()
+        },
+        onChange() {
+            invoke('getSourceInfo', {url: newSourceInput.value})
+                .then((msg)=> {
+                    newSource.value = JSON.parse(msg)
+                })
+                .catch(err => console.log(err));
+        },
+        onNegativeClick() {
+            console.log("Cancel")
+        },
+        onPositiveClick() { 
+            invoke('addSource', {title: newSource.value.title, link: newSource.value.link, description: newSource.value.description});
+        },
+
     }
 }
 </script>
@@ -89,7 +93,7 @@ export default {
             </n-layout-sider>
             
             <n-layout content-styel="padding: 24px;" :native-scrollbar="false">
-                <feeds @MessageSent="handleReading" v-bind:sources="sources" v-bind:feeds_list="feeds_list" />
+                <feeds @MessageSent="handleReading" v-bind:feeds_list="feeds_list" />
             </n-layout>
 
             <n-modal v-model:show="showModal"
