@@ -27,7 +27,7 @@ export default {
         },
     },
     props: [
-        'sources'
+        'feeds_list'
     ],
     setup(props) {
         const active = ref(false);
@@ -57,26 +57,11 @@ export default {
                 })
                 .catch(err => console.log(err));      
         } 
-        const feeds_list = ref([]);
 
-        const refresh = () => {
-            feeds_list.value = [];
-            for(let i = 0;i<props.sources.length;i++){
-                invoke('example_feed', { url: props.sources[i].link })
-                    .then(response => {
-                        for(let j= 0; j < response.length;j++) {
-                            feeds_list.value[feeds_list.value.length] = JSON.parse(response[j]);
-                        }
-                    })
-                    .catch(err => console.log(err));
-            }
-        }
         return {
             active,
             reading,
             read_feed,
-            refresh,
-            feeds_list,
             nowReading,
             readHtml,
             feed
@@ -85,9 +70,7 @@ export default {
 }
 </script>
 
-
 <template>
-        <n-button @click="refresh">Refresh</n-button>
         <n-list hoverable clickable>
             <n-list-item v-for="feed in feeds_list">
                 <n-card v-bind:title="feed.title" style="width:500px;" @click="read_feed(feed.link)">

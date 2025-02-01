@@ -2,7 +2,7 @@
 import sidebar from './components/sidebar.vue';
 import reader from './components/reader.vue';
 import feeds from './components/feeds.vue';
-import { NModal, NCard, NInput, NLayout, NLayoutSider } from 'naive-ui';
+import { NModal, NButton, NCard, NInput, NLayout, NLayoutSider } from 'naive-ui';
 import { ref, inject } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 
@@ -15,10 +15,12 @@ export default {
         NCard,
         NInput,
         NLayout,
+        NButton,
         NLayoutSider
     },
     setup() {
         const feed = ref({});
+        const feeds_list = ref([]);
         const sources = ref([]);
         const newSource = ref({});
         const newSourceInput  = ref("");
@@ -27,6 +29,7 @@ export default {
             showModal: ref(false),
             showReader: ref(false),
             feed,
+            feeds_list,
             sources,
             newSourceInput,
             newSource,
@@ -59,6 +62,18 @@ export default {
         },
         changeSource(sources) {
             this.sources = sources;
+        },
+        refresh() {
+            this.feeds_list.value = [];
+            for(let i = 0;i<this.sources.length;i++){
+                invoke('example_feed', { url: this.sources[i].link })
+                    .then(response => {
+                        for(let j= 0; j < response.length;j++) {
+                            this.feeds_list[this.feeds_list.length] = JSON.parse(response[j]);
+                        }
+                    })
+                    .catch(err => console.log(err));
+            }
         }
     }
 }
@@ -69,11 +84,12 @@ export default {
     <n-layout style="height: 720px; position: relative;">
         <n-layout position="absolute" has-sider>
             <n-layout-sider content-sytle="padding: 24px;" :native-scrollbar="false">
+                <n-button @click="refresh">Refresh</n-button>
                 <sidebar @messageSent="handleNewRSS" @changeSource="changeSource" />
             </n-layout-sider>
             
             <n-layout content-styel="padding: 24px;" :native-scrollbar="false">
-                <feeds @MessageSent="handleReading" v-bind:sources="sources" />
+                <feeds @MessageSent="handleReading" v-bind:sources="sources" v-bind:feeds_list="feeds_list" />
             </n-layout>
 
             <n-modal v-model:show="showModal"
