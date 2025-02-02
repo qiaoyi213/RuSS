@@ -78,7 +78,6 @@ export default {
         onPositiveClick() { 
             invoke('addSource', {title: newSource.value.title, link: newSource.value.link, description: newSource.value.description});
         },
-
     }
 }
 </script>
