@@ -1,12 +1,12 @@
-<script>
+<script lang="ts">
 import { NCard, NList, NListItem, NScrollbar, NDrawer, NDrawerContent, NButton } from 'naive-ui'
-import { ref, defineProps } from 'vue';
+import { ref, defineProps, defineComponent } from 'vue';
 import reader from './reader.vue';
 import { invoke } from '@tauri-apps/api/core';
 import { fetch } from '@tauri-apps/plugin-http';
 import { Readability } from '@mozilla/readability';
 
-export default {
+export default defineComponent ({
     emits: [
         'MessageSent'
     ],
@@ -21,23 +21,25 @@ export default {
         reader
     },
     methods: {
-        focusReading (message) {
+        focusReading (message: string) {
             this.$emit("MessageSent", message);
             this.active = false;
         },
     },
-    props: [
-        'feeds_list'
-    ],
+    props: {
+        'feeds_list': Array as () => any[]
+    },
     setup(props) {
-        const active = ref(false);
-        const reading = ref(false);
-        const nowReading = ref({});
-        const readHtml = ref("");
-        const feed = ref({});
-        const read_feed = async (feed_url) => {
-            active.value = true;   
-            invoke('getFeed', {url: feed_url})
+        const active = ref<boolean>(false);
+        const reading = ref<boolean>(false);
+        const nowReading = ref<Record<string, any>>({});
+        const readHtml = ref<string>("");
+        const feed = ref<Record<string, any>>({});
+
+        const read_feed = async (feed_url: string) => {
+            active.value = true;
+
+            invoke<string>('getFeed', {url: feed_url})
                 .then((response) => {
                     console.log(response)
                     let htmlText = response;
@@ -67,7 +69,7 @@ export default {
             feed
         }
     }
-}
+})
 </script>
 
 <template>

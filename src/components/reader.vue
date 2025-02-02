@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
 import { NCard, NButton, NScrollbar, NAlert } from 'naive-ui';
-import { ref } from 'vue';
-export default {
+import { ref, defineComponent} from 'vue';
+export default defineComponent ({
     components: {
         NCard,
         NButton,
@@ -17,7 +17,7 @@ export default {
     props: [
         'feed',
     ]
-}
+})
 </script>
 
 <template>

@@ -1,9 +1,9 @@
-<script>
-import { ref } from 'vue';
+<script lang="ts">
+import { ref, defineComponent } from 'vue';
 import following from './following.vue';
 import { NButton } from 'naive-ui';
 
-export default {
+export default defineComponent ({
     emits:[
         'changeSource',
         'messageSent'
@@ -22,7 +22,7 @@ export default {
 
         }
     }
-}
+})
 </script>
 
 <template>

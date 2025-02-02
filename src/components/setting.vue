@@ -1,16 +1,13 @@
-<script>
+<script lang="ts">
 import { NLayout, NLayoutSider, NLayoutContent } from 'naive-ui';
-
-export default {
+import { defineComponent } from 'vue';
+export default defineComponent ({
     components: {
         NLayout,
         NLayoutSider,
         NLayoutContent
     },
-    setup() {
-
-    }
-}
+})
 </script>
 
 

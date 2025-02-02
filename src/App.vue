@@ -1,12 +1,19 @@
-<script> 
+<script lang="ts"> 
 import sidebar from './components/sidebar.vue';
 import reader from './components/reader.vue';
 import feeds from './components/feeds.vue';
 import { NModal, NButton, NCard, NInput, NLayout, NLayoutSider } from 'naive-ui';
-import { ref, inject } from 'vue';
+import { ref, inject, defineComponent } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 
-export default {
+
+interface Source {
+    title?: string;
+    link?: string;
+    description?: string;
+}
+
+export default defineComponent ({
     components: {
         sidebar,
         reader,
@@ -19,39 +26,38 @@ export default {
         NLayoutSider
     },
     setup() {
-        const feed = ref({});
-        const feeds_list = ref([]);
-        const sources = ref([]);
-        const newSource = ref({});
-        const newSourceInput  = ref("");
+        const feed = ref<string>({});
+        const feeds_list = ref<string[]>([]);
+        const sources = ref<string[]>([]);
+        const newSource = ref<Source>({});
+        const newSourceInput  = ref<string>("");
 
         return {
-            showModal: ref(false),
-            showReader: ref(false),
+            showModal: ref<boolean>(false),
+            showReader: ref<boolean>(false),
             feed,
             feeds_list,
             sources,
             newSourceInput,
             newSource,
-        }
+        };
     },
     methods: {
-        handleNewRSS(message){
+        handleNewRSS(message: string){
             console.log(message)
             this.showModal = true;
-            console.log(this.showModal)
         },
-        handleReading(message) {
+        handleReading(message: string) {
             this.feed = message;
             this.showReader = true;
         },
-        handleCloseReader(message) {
+        handleCloseReader(message: string) {
             this.showReader = false;
         },
         refresh() {
             this.feeds_list = [];
             for(let i = 0;i<this.sources.length;i++){
-                invoke('example_feed', { url: this.sources[i].link })
+                invoke<string[]>('example_feed', { url: this.sources[i].link })
                     .then(response => {
                         for(let j= 0; j < response.length;j++) {
                             this.feeds_list[this.feeds_list.length] = JSON.parse(response[j]);
@@ -60,13 +66,12 @@ export default {
                     .catch(err => console.log(err));
             }
         },
-        changeSource(sources) {
+        changeSource(sources: Feed[]) {
             this.sources = sources;
-            console.log(sources)
             this.refresh()
         },
         onChange() {
-            invoke('getSourceInfo', {url: newSourceInput.value})
+            invoke<string>('getSourceInfo', {url: newSourceInput.value})
                 .then((msg)=> {
                     newSource.value = JSON.parse(msg)
                 })
@@ -79,7 +84,7 @@ export default {
             invoke('addSource', {title: newSource.value.title, link: newSource.value.link, description: newSource.value.description});
         },
     }
-}
+})
 </script>
 
 <template>

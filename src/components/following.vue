@@ -1,9 +1,9 @@
-<script>
+<script lang="ts">
 import { NButton, NMenu } from "naive-ui";
 import { invoke } from '@tauri-apps/api/core';
-import { ref, defineEmits } from 'vue';
+import { ref, defineEmits, defineComponent } from 'vue';
 
-export default {
+export default defineComponent ({
     emits: [
         'changeSource'
     ],
@@ -11,33 +11,30 @@ export default {
         NButton,
         NMenu,
     },
-    data() {
-        return {
-            followings: [
-            ]
-        }
-    },
     methods: {
         initSource(){
             this.$emit('changeSource', this.sources.value);   
         },
-        sourcesClick(source) {
+        sourcesClick(source: any) {
             this.$emit('changeSource', [source]); 
         }
 
     },
     setup(props, context) {
-        const sources = ref({});
-        invoke('getSources')
-            .then(response => {
+        const sources = ref<Record<string, any>>({});
+        invoke<string>('getSources')
+            .then((response: string) => {
                 sources.value = JSON.parse(response);
                 context.emit('changeSource', sources.value.sources);
+            })
+            .catch((error: any) => {
+                console.error(error)
             }); 
         return {
             sources,
         }
     }
-}
+})
 
 </script>
 
