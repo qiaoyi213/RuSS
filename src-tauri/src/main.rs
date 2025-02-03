@@ -5,6 +5,12 @@ use app_lib::core;
 use rss::Channel;
 use std::fs::File;
 use std::io::BufReader;
+use tauri::{ 
+    menu:: {AboutMetadata,MenuBuilder, MenuItemBuilder, SubmenuBuilder},
+    Manager,
+    Emitter
+};
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -12,6 +18,44 @@ fn greet(name: &str) -> String {
 
 fn main() {
     tauri::Builder::default()
+        .setup(|app|  {
+            let handle = app.handle();
+            let settings = MenuItemBuilder::new("Settings...")
+                .id("settings")
+                .accelerator("CmdOrCtrl+,")
+                .build(app)?;
+
+            // my custom app submenu
+            let app_submenu = SubmenuBuilder::new(app, "App")
+                .about(Some(AboutMetadata {
+                    ..Default::default()
+                }))
+                .separator()
+                .item(&settings)
+                .separator()
+                .services()
+                .separator()
+                .hide()
+                .hide_others()
+                .quit()
+                .build()?; 
+
+            let menu = MenuBuilder::new(app)
+                .items(&[
+                    &app_submenu,
+                ])
+                .build()?;
+
+            app.set_menu(menu)?;
+
+            app.on_menu_event(move |app, event| {
+                if event.id() == settings.id() {
+                    let _event = app.emit("settings", "/settings");
+                    println!("Click");
+                }
+            });
+            Ok(())
+        })
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![

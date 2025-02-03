@@ -2,10 +2,11 @@
 import sidebar from './components/sidebar.vue';
 import reader from './components/reader.vue';
 import feeds from './components/feeds.vue';
+import settings from './components/settings.vue';
 import { NModal, NButton, NCard, NInput, NLayout, NLayoutSider } from 'naive-ui';
 import { ref, inject, defineComponent } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-
+import { listen } from '@tauri-apps/api/event';
 
 interface Source {
     title?: string;
@@ -18,6 +19,7 @@ export default defineComponent ({
         sidebar,
         reader,
         feeds,
+        settings,
         NModal,
         NCard,
         NInput,
@@ -31,7 +33,12 @@ export default defineComponent ({
         const sources = ref<string[]>([]);
         const newSource = ref<Source>({});
         const newSourceInput  = ref<string>("");
+        const showSettings = ref<boolean>(false);
 
+        const onSetting = listen('settings', (event) => {
+            showSettings.value = true;  
+        });
+        
         return {
             showModal: ref<boolean>(false),
             showReader: ref<boolean>(false),
@@ -40,6 +47,7 @@ export default defineComponent ({
             sources,
             newSourceInput,
             newSource,
+            showSettings
         };
     },
     methods: {
@@ -54,6 +62,7 @@ export default defineComponent ({
         handleCloseReader(message: string) {
             this.showReader = false;
         },
+        
         refresh() {
             this.feeds_list = [];
             for(let i = 0;i<this.sources.length;i++){
@@ -83,6 +92,9 @@ export default defineComponent ({
         onPositiveClick() { 
             invoke('addSource', {title: newSource.value.title, link: newSource.value.link, description: newSource.value.description});
         },
+        handleSettingsClose(msg) {
+            this.showSettings = false;
+        }
     }
 })
 </script>
@@ -116,6 +128,10 @@ export default defineComponent ({
     </div>
     <div style="position: absolute; z-index: 2; top:1vh; left:1vw; right:1vw; border-radius: 10px;">
         <reader v-bind:feed="feed"  v-if="showReader" @messageSent="handleCloseReader"/>
+    </div>
+
+    <div style="position: absolute; z-index: 2; top:1vh; left:1vw; right:1vw; border-radius: 10px;">
+        <settings v-if="showSettings" @messageSent="handleSettingsClose" />
     </div>
 </template>
 

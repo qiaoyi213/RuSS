@@ -31,16 +31,21 @@ export default defineComponent ({
         <n-button @click="showModal">
             New RSS
         </n-button>
-
         <following @changeSource="changeSource" />
+        
     </div> 
 </template>
-
 <style>
+body {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
 .sidebar {
     background-color: #27282a;
     width: 255pt;
-    max-height: 100%;
+    height: 100vh;
 }
 </style>
 

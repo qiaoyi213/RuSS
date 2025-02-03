@@ -20,7 +20,7 @@
         "fs:default",
         "fs:allow-app-read-recursive",
         "fs:allow-app-write-recursive",
-        "http:default"
+        "http:default",
+        "core:default"
     ]
 }
-
