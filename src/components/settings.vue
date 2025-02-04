@@ -1,6 +1,9 @@
 <script lang="ts">
 import { NCard, NLayout, NLayoutSider, NLayoutContent, NMenu } from 'naive-ui';
-import { ref, defineComponent } from 'vue';
+import { ref, defineComponent, h} from 'vue';
+import general from './settings/general.vue';
+import appearance from './settings/appearance.vue';
+import about from './settings/about.vue';
 
 
 const menuOptions: MenuOption[] = [
@@ -19,15 +22,9 @@ const menuOptions: MenuOption[] = [
 ];
 
 const contentComponents = {
-    'general': {
-
-    },
-    'appearance': {
-
-    },
-    'about': {
-
-    }
+    'general': general,
+    'appearance': appearance,
+    'about': about
 };
 
 export default defineComponent ({
@@ -39,11 +36,12 @@ export default defineComponent ({
         NMenu, 
     },
     setup() {
-        const selectedComponent = ref('general');
+        const selectedMenu = ref('general');
 
         return {
             menuOptions,
-            selectedComponent
+            contentComponents,
+            selectedMenu,
         } 
     },
     methods: {
@@ -51,8 +49,7 @@ export default defineComponent ({
             this.$emit('messageSent', 'settingsClose');
         },
         handleMenuChange(msg) {
-            console.log(msg)
-            this.selectedComponent = msg
+            this.selectedMenu = msg
         }
     },
 
@@ -66,8 +63,9 @@ export default defineComponent ({
             <n-layout-sider>
                 <n-menu :options="menuOptions" @update:value="handleMenuChange"/>
             </n-layout-sider>
+
             <n-layout-content>
-                <component :is="" />
+                <component v-bind:is="contentComponents[selectedMenu]" />
             </n-layout-content>
         </n-layout>
     </n-card> 
@@ -78,5 +76,6 @@ export default defineComponent ({
     max-width: 800px;
     background-color: #171717; 
 }
+
 </style>
 
