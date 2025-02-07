@@ -1,10 +1,11 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { NSelect } from 'naive-ui';  
+import { NSelect, NSwitch } from 'naive-ui';  
 
 export default defineComponent({
     components: {
-        NSelect
+        NSelect,
+        NSwitch
     },
     setup() {
         const languageVal = ref("");
@@ -15,9 +16,10 @@ export default defineComponent({
             },
             {
                 label: "English",
-                key: "en"
+                key: "en_US"
             }
         ];
+        
         return {
             languageVal,
             languageOptions
