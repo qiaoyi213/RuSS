@@ -2,11 +2,12 @@
 
 ## Features
 
--   [ ] Reading feeds
--   [ ] Feeds subscription
+-   [x] Reading feeds
+-   [x] Feeds subscription
 -   [ ] Auto-Update
 -   [ ] Dark Mode
--   [ ] Focus Mode
+-   [x] Focus Mode
+-   [ ] Sync with Pocket
 
 ## todos
 
