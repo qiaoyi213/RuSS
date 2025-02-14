@@ -18,6 +18,7 @@ export default defineComponent({
 
 <template>
     <h1>Appearance</h1>
+    <p>Dark mode</p>
     <n-switch v-model:value="darkMode" />
     
 </template>

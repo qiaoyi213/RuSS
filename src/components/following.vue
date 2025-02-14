@@ -17,6 +17,9 @@ export default defineComponent ({
         },
         sourcesClick(source: any) {
             this.$emit('changeSource', [source]); 
+        },
+        sourceHandler(source: any) {
+            console.log("righclick", source)
         }
 
     },
@@ -44,7 +47,7 @@ export default defineComponent ({
     </div>
     <div class="followings">
         <div class="following" v-for="source in sources.sources">
-            <n-button @click="sourcesClick(source)"> {{ source.title }} </n-button>
+            <n-button @contextmenu="sourceHandler(source)" @click="sourcesClick(source)"> {{ source.title }} </n-button>
         </div>
     </div>
 
