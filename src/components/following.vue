@@ -13,7 +13,7 @@ export default defineComponent ({
     },
     methods: {
         initSource(){
-            this.$emit('changeSource', this.sources.value);   
+            this.$emit('changeSource', this.sources);   
         },
         sourcesClick(source: any) {
             this.$emit('changeSource', [source]); 
@@ -24,7 +24,19 @@ export default defineComponent ({
 
     },
     setup(props, context) {
-        const sources = ref<Record<string, any>>({});
+        const sources = ref<{ sources: any[] }>({ sources: [] });
+        const selectedSource = ref<any>(null);
+
+        const selectSource = (source: any) => {
+            selectedSource.value = source;
+            context.emit('changeSource', [source]);
+        };
+
+        const clearSelection = () => {
+            selectedSource.value = null;
+            context.emit('changeSource', sources.value.sources);
+        };
+
         invoke<string>('getSources')
             .then((response: string) => {
                 sources.value = JSON.parse(response);
@@ -35,6 +47,9 @@ export default defineComponent ({
             }); 
         return {
             sources,
+            selectedSource,
+            selectSource,
+            clearSelection
         }
     }
 })
@@ -43,23 +58,51 @@ export default defineComponent ({
 
 <template>
     <div class="head"> 
-        <h1>Following</h1>
+        <h1 class="following-title">Following</h1>
     </div>
-    <div class="followings">
-        <div class="following" v-for="source in sources.sources">
-            <n-button @contextmenu="sourceHandler(source)" @click="sourcesClick(source)"> {{ source.title }} </n-button>
+    <div class="followings" @click="clearSelection">
+        <div class="following" v-for="source in sources.sources" :key="source.title" style="margin: 5px;">
+            <n-button @contextmenu="sourceHandler(source)" @click.stop="selectSource(source)" :class="{'following-button': true, 'selected': selectedSource === source}">
+                {{ source.title }}
+            </n-button>
         </div>
     </div>
-
 </template>
 
 <style>
 .head {
-    background-color: red;
+    background-color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+.following-title {
+    color: white;
+    font-size: 22px;
+    margin: 0;
 }
 .following {
-    border-radius: 2px;
-    background-color: green;
+    border-radius: 5px;
+    padding: 5px;
 }
-
+.following-button {
+    background-color: #007BFF;
+    color: white;
+    width: 100%;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+.following-button:hover {
+    background-color: #0056b3;
+}
+.selected {
+    background-color: #0056b3 !important;
+}
+.followings {
+    padding: 10px;
+    background-color: #f4f4f9;
+    border-radius: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
 </style>

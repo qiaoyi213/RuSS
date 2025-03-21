@@ -34,14 +34,16 @@ export default defineComponent ({
         const newSource = ref<Source>({});
         const newSourceInput  = ref<string>("");
         const showSettings = ref<boolean>(false);
+        const showModal = ref<boolean>(false);
+        const showReader = ref<boolean>(false);
 
         const onSetting = listen('settings', (event) => {
             showSettings.value = true;  
         });
         
         return {
-            showModal: ref<boolean>(false),
-            showReader: ref<boolean>(false),
+            showModal,
+            showReader,
             feed,
             feeds_list,
             sources,
@@ -53,14 +55,14 @@ export default defineComponent ({
     methods: {
         handleNewRSS(message: string){
             console.log(message)
-            this.showModal = true;
+            this.showModal.value = true;
         },
         handleReading(message: string) {
-            this.feed = message;
-            this.showReader = true;
+            this.feed.value = message;
+            this.showReader.value = true;
         },
         handleCloseReader(message: string) {
-            this.showReader = false;
+            this.showReader.value = false;
         },
         
         refresh() {
@@ -75,7 +77,7 @@ export default defineComponent ({
                     .catch(err => console.log(err));
             }
         },
-        changeSource(sources: Feed[]) {
+        changeSource(sources: any) {
             this.sources = sources;
             this.refresh()
         },
@@ -101,27 +103,30 @@ export default defineComponent ({
 
 <template>
     <div style="position: relative; z-index: 1;">  
-    <n-layout style="height: 720px; position: relative;">
+    <n-layout style="height: 720px; position: relative; background-color: #f4f4f9;">
         <n-layout position="absolute" has-sider>
-            <n-layout-sider content-sytle="padding: 24px;" :native-scrollbar="false">
-                <n-button @click="refresh">Refresh</n-button>
-                <sidebar @messageSent="handleNewRSS" @changeSource="changeSource" />
+            <n-layout-sider content-style="padding: 24px; background-color: #27282a;" :native-scrollbar="false">
+                <n-button @click="refresh" style="margin: 10px; background-color: #4CAF50; color: white;">Refresh</n-button>
+                <n-button @click="showModal = true" class="sidebar-button">
+                    New Source
+                </n-button>
+                <sidebar @messageSent="handleNewRSS" @change-source="changeSource" />
             </n-layout-sider>
             
-            <n-layout content-styel="padding: 24px;" :native-scrollbar="false">
+            <n-layout content-style="padding: 24px;" :native-scrollbar="false">
                 <feeds @MessageSent="handleReading" v-bind:feeds_list="feeds_list" />
             </n-layout>
 
             <n-modal v-model:show="showModal"
                 preset="dialog"
-                style="width:600px"
+                style="width:600px; background-color: #fff; border-radius: 10px;"
                 title="Add new RSS source"
                 positive-text="Add it!"
                 negative-text="Cancel"
                 @positive-click="onPositiveClick"
                 @negative-click="onNegativeClick"
             >
-                <n-input @change="onChange" v-model:value="newSourceInput"></n-input>
+                <n-input @change="onChange" v-model:value="newSourceInput" style="margin-top: 10px;"></n-input>
             </n-modal>
         </n-layout>
     </n-layout>
@@ -136,4 +141,9 @@ export default defineComponent ({
 </template>
 
 <style>
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+}
 </style>
