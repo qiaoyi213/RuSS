@@ -21,6 +21,7 @@
         "fs:allow-app-read-recursive",
         "fs:allow-app-write-recursive",
         "http:default",
-        "core:default"
+        "core:default",
+        "shell:allow-open"
     ]
 }

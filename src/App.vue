@@ -82,9 +82,11 @@ export default defineComponent ({
             this.refresh()
         },
         onChange() {
-            invoke<string>('getSourceInfo', {url: newSourceInput.value})
+            console.log(this.newSourceInput)
+            invoke<string>('getSourceInfo', {url: this.newSourceInput})
                 .then((msg)=> {
-                    newSource.value = JSON.parse(msg)
+                    this.newSource = JSON.parse(msg)
+                    console.log(msg)
                 })
                 .catch(err => console.log(err));
         },
@@ -92,7 +94,8 @@ export default defineComponent ({
             console.log("Cancel")
         },
         onPositiveClick() { 
-            invoke('addSource', {title: newSource.value.title, link: newSource.value.link, description: newSource.value.description});
+            console.log(this.newSource)
+            invoke('addSource', {title: this.newSource.title, link: this.newSource.link, description: this.newSource.description});
         },
         handleSettingsClose(msg) {
             this.showSettings = false;
@@ -131,9 +134,7 @@ export default defineComponent ({
         </n-layout>
     </n-layout>
     </div>
-    <div style="position: absolute; z-index: 2; top:1vh; left:1vw; right:1vw; border-radius: 10px;">
-        <reader v-bind:feed="feed"  v-if="showReader" @messageSent="handleCloseReader"/>
-    </div>
+
 
     <div style="position: absolute; z-index: 2; top:1vh; left:1vw; right:1vw; border-radius: 10px;">
         <settings v-if="showSettings" @messageSent="handleSettingsClose" />

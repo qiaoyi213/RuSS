@@ -5,6 +5,7 @@ import reader from './reader.vue';
 import { invoke } from '@tauri-apps/api/core';
 import { fetch } from '@tauri-apps/plugin-http';
 import { Readability } from '@mozilla/readability';
+import { open } from '@tauri-apps/plugin-shell';
 
 export default defineComponent ({
     emits: [
@@ -24,7 +25,7 @@ export default defineComponent ({
         focusReading (message: string) {
             this.$emit("MessageSent", message);
             this.active = false;
-        },
+        }
     },
     props: {
         'feeds_list': Array as () => any[]
@@ -53,6 +54,7 @@ export default defineComponent ({
                     readHtml.value = article.content;
                     feed.value["title"] = article.title;
                     feed.value["content"] = article.content;
+                    feed.value["link"] = feed_url;
                 } else {
                     console.log("Could not extract the article");
                 }
@@ -60,14 +62,18 @@ export default defineComponent ({
                 console.log(err);
             }
         } 
-
+        const openURL = async (feed_url: string) => {
+            console.log(feed_url)
+            open(feed_url)
+        } 
         return {
             active,
             reading,
             read_feed,
             nowReading,
             readHtml,
-            feed
+            feed,
+            openURL
         }
     }
 })
@@ -84,9 +90,7 @@ export default defineComponent ({
 
     <n-drawer v-model:show="active" resizable :default-width="600" placement="right">
         <n-drawer-content v-bind:title="feed['title']" closable :native-scrollbar="false">
-            <n-button @click="focusReading(feed)" style="margin-bottom: 10px;">
-                Focus
-            </n-button>
+            <n-button @click="openURL(feed['link'])">閱讀原文</n-button>
             <div v-html="readHtml" style="line-height: 1.6; color: #333; padding: 10px;"></div>
         </n-drawer-content>
     </n-drawer>

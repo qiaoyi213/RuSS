@@ -8,6 +8,7 @@
 -   [ ] Dark Mode
 -   [x] Focus Mode
 -   [ ] Sync with Pocket
+-   [ ] AI conclude todays news
 
 ## todos
 
