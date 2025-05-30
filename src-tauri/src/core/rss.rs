@@ -124,7 +124,6 @@ pub fn addSource(title: String, description: String, link: String) -> Result<(),
 
         let mut json_data: SourcesFile = serde_json::from_str(&contents).map_err(|e| e.to_string())?;
 
-        // todo: add the s into json_data
         json_data.sources.push(s);
         let json_data_str = serde_json::to_string_pretty(&json_data).map_err(|e| e.to_string())?;
         let mut file = OpenOptions::new().write(true).truncate(true).open(path).map_err(|e| e.to_string())?;
@@ -145,15 +144,26 @@ pub fn addSource(title: String, description: String, link: String) -> Result<(),
     }
 }
 
-/*
-pub fn removeSource(Source: s) -> Result<(), String> {
-    // todo 
+#[tauri::command]
+pub fn deleteSource(title: String) -> Result<(), String> {
     let path = Path::new("./sources.json");
     if path.exists() {
-         
-    } else {
+        let mut file = File::open(path).map_err(|e| e.to_string())?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).map_err(|e| e.to_string())?;
 
+        let mut json_data: SourcesFile = serde_json::from_str(&contents).map_err(|e| e.to_string())?;
+        // search and delete source
+        json_data.sources.retain(|item| if *item.title == title {false} else {true});
+
+
+        let json_data_str = serde_json::to_string_pretty(&json_data).map_err(|e| e.to_string())?;
+        let mut file = OpenOptions::new().write(true).truncate(true).open(path).map_err(|e| e.to_string())?;
+        file.write_all(json_data_str.as_bytes()).map_err(|e| e.to_string())?;
+        Ok(())
+
+    } else {
+        Ok(())
     }
 }
-*/
 

@@ -6,7 +6,6 @@ import { NButton } from 'naive-ui';
 export default defineComponent ({
     emits:[
         'changeSource',
-        'messageSent'
     ],
     components: {
         following,
@@ -18,7 +17,7 @@ export default defineComponent ({
         },
         changeSource(source: any) {
             this.$emit('changeSource', source)  
-        }
+        },
     }
 })
 </script>
@@ -26,7 +25,7 @@ export default defineComponent ({
 <template>
     <div class="sidebar">
         <div class="following-list">
-            <following @changeSource="changeSource" />
+            <following @changeSource="changeSource"/>
         </div>
     </div> 
 </template>

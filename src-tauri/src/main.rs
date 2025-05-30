@@ -65,7 +65,8 @@ fn main() {
             app_lib::core::rss::getSources,
             app_lib::core::rss::addSource,
             app_lib::core::rss::getSourceInfo,
-            app_lib::core::rss::getFeed
+            app_lib::core::rss::getFeed,
+            app_lib::core::rss::deleteSource
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

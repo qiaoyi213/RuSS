@@ -64,7 +64,6 @@ export default defineComponent ({
         handleCloseReader(message: string) {
             this.showReader.value = false;
         },
-        
         refresh() {
             this.feeds_list = [];
             for(let i = 0;i<this.sources.length;i++){
@@ -78,6 +77,7 @@ export default defineComponent ({
             }
         },
         changeSource(sources: any) {
+            console.log("A")
             this.sources = sources;
             this.refresh()
         },
@@ -106,14 +106,14 @@ export default defineComponent ({
 
 <template>
     <div style="position: relative; z-index: 1;">  
-    <n-layout style="height: 720px; position: relative; background-color: #f4f4f9;">
+    <n-layout style="height: 100vh; position: relative; background-color: #f4f4f9;">
         <n-layout position="absolute" has-sider>
             <n-layout-sider content-style="padding: 24px; background-color: #27282a;" :native-scrollbar="false">
                 <n-button @click="refresh" style="margin: 10px; background-color: #4CAF50; color: white;">Refresh</n-button>
                 <n-button @click="showModal = true" class="sidebar-button">
                     New Source
                 </n-button>
-                <sidebar @messageSent="handleNewRSS" @change-source="changeSource" />
+                <sidebar @change-source="changeSource" />
             </n-layout-sider>
             
             <n-layout content-style="padding: 24px;" :native-scrollbar="false">

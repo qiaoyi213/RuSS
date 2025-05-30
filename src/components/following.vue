@@ -1,15 +1,16 @@
 <script lang="ts">
-import { NButton, NMenu } from "naive-ui";
+import { NButton, NMenu, NDropdown } from "naive-ui";
 import { invoke } from '@tauri-apps/api/core';
 import { ref, defineEmits, defineComponent } from 'vue';
 
 export default defineComponent ({
     emits: [
-        'changeSource'
+        'changeSource',
     ],
     components: {
         NButton,
         NMenu,
+        NDropdown
     },
     methods: {
         initSource(){
@@ -17,15 +18,13 @@ export default defineComponent ({
         },
         sourcesClick(source: any) {
             this.$emit('changeSource', [source]); 
-        },
-        sourceHandler(source: any) {
-            console.log("righclick", source)
         }
 
     },
     setup(props, context) {
         const sources = ref<{ sources: any[] }>({ sources: [] });
         const selectedSource = ref<any>(null);
+        const dropdownStatus = {};
 
         const selectSource = (source: any) => {
             selectedSource.value = source;
@@ -36,20 +35,50 @@ export default defineComponent ({
             selectedSource.value = null;
             context.emit('changeSource', sources.value.sources);
         };
+        
+        const sourceHandler = (sourceTitle: string) => {
+            dropdownStatus[sourceTitle] = !dropdownStatus[sourceTitle];
+        };
+
+        const handleSelect = (event, sourceTitle:string) => {
+            console.log(event)
+            console.log(sourceTitle)
+            if(event == "Delete") {
+                invoke('deleteSource', {title: sourceTitle})
+            }
+        }
+        const options = [
+            {
+                label: '刪除',
+                key: 'Delete',
+                disabled: false
+            },
+        ]
 
         invoke<string>('getSources')
             .then((response: string) => {
-                sources.value = JSON.parse(response);
-                context.emit('changeSource', sources.value.sources);
+                sources.value = JSON.parse(response); 
+                console.log(sources.value.sources.length); 
+                for(let i=0;i<sources.value.sources.length;i++){
+                    console.log(sources.value.sources[i])
+                    dropdownStatus[sources.value.sources[i]['title']] = ref('false');
+                }
+                context.emit('changeSource', sources.value.sources); 
+                
             })
             .catch((error: any) => {
                 console.error(error)
             }); 
+
         return {
             sources,
             selectedSource,
             selectSource,
-            clearSelection
+            clearSelection,
+            sourceHandler,
+            dropdownStatus,
+            options,
+            handleSelect
         }
     }
 })
@@ -62,9 +91,11 @@ export default defineComponent ({
     </div>
     <div class="followings" @click="clearSelection">
         <div class="following" v-for="source in sources.sources" :key="source.title" style="margin: 5px;">
-            <n-button @contextmenu="sourceHandler(source)" @click.stop="selectSource(source)" :class="{'following-button': true, 'selected': selectedSource === source}">
-                {{ source.title }}
-            </n-button>
+            <n-dropdown :show="dropdownStatus[sources.title]" :options="options" @select="handleSelect($event, source.title)">
+                <n-button @contextmenu="sourceHandler(source)" @click.stop="selectSource(source)" :class="{'following-button': true, 'selected': selectedSource === source}">
+                    {{ source.title }}
+                </n-button>
+            </n-dropdown>
         </div>
     </div>
 </template>
