@@ -1,113 +1,219 @@
-<script lang="ts">
-import { NCard, NList, NListItem, NScrollbar, NDrawer, NDrawerContent, NButton } from 'naive-ui'
-import { ref, defineProps, defineComponent } from 'vue';
-import reader from './reader.vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import { fetch } from '@tauri-apps/plugin-http';
-import { Readability } from '@mozilla/readability';
 import { open } from '@tauri-apps/plugin-shell';
+import { Readability } from '@mozilla/readability';
+import {
+  NButton,
+  NCard,
+  NEmpty,
+  NFlex,
+  NGrid,
+  NGridItem,
+  NModal,
+  NSpin,
+  NTag,
+  NText,
+} from 'naive-ui';
 
-export default defineComponent ({
-    emits: [
-        'MessageSent'
-    ],
-    components: {
-        NCard,
-        NList,
-        NListItem,
-        NScrollbar,
-        NDrawer,
-        NDrawerContent,
-        NButton,
-        reader
-    },
-    methods: {
-        focusReading (message: string) {
-            this.$emit("MessageSent", message);
-            this.active = false;
-        }
-    },
-    props: {
-        'feeds_list': Array as () => any[]
-    },
-    setup(props) {
-        const active = ref<boolean>(false);
-        const reading = ref<boolean>(false);
-        const nowReading = ref<Record<string, any>>({});
-        const readHtml = ref<string>("");
-        const feed = ref<Record<string, any>>({});
+interface FeedItem {
+  title: string;
+  link: string;
+  pubDate?: string;
+  description?: string;
+}
 
-        const read_feed = async (feed_url: string) => {
-            active.value = true;
+defineProps<{
+  feedsList: FeedItem[];
+  loading: boolean;
+  activeSourceTitle: string;
+}>();
 
-            try {
-                const response = await invoke<string>('getFeed', {url: feed_url});
-                console.log(response)
-                let htmlText = response;
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlText, 'text/html');
-                const reader = new Readability(doc); 
-                let article = reader.parse();
-                if (article) {
-                    console.log("title:", article.title);
-                    console.log("content:", article.content);
-                    readHtml.value = article.content;
-                    feed.value["title"] = article.title;
-                    feed.value["content"] = article.content;
-                    feed.value["link"] = feed_url;
-                } else {
-                    console.log("Could not extract the article");
-                }
-            } catch (err) {
-                console.log(err);
-            }
-        } 
-        const openURL = async (feed_url: string) => {
-            console.log(feed_url)
-            open(feed_url)
-        } 
-        return {
-            active,
-            reading,
-            read_feed,
-            nowReading,
-            readHtml,
-            feed,
-            openURL
-        }
+const viewerOpen = ref(false);
+const readerLoading = ref(false);
+const readHtml = ref('');
+const readingFeed = ref<FeedItem | null>(null);
+const readingFontSize = ref(18);
+
+async function readFeed(feed: FeedItem): Promise<void> {
+  viewerOpen.value = true;
+  readerLoading.value = true;
+  readingFeed.value = feed;
+  readHtml.value = '';
+
+  try {
+    const htmlText = await invoke<string>('getFeed', { url: feed.link });
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, 'text/html');
+    const article = new Readability(doc).parse();
+
+    if (article?.content) {
+      readHtml.value = article.content;
+    } else {
+      readHtml.value = '<p>無法擷取可閱讀內容，請改用原文模式。</p>';
     }
-})
+  } catch (error) {
+    console.error(error);
+    readHtml.value = '<p>文章載入失敗，請稍後再試。</p>';
+  } finally {
+    readerLoading.value = false;
+  }
+}
+
+async function openOriginal(): Promise<void> {
+  if (!readingFeed.value?.link) {
+    return;
+  }
+
+  try {
+    await open(readingFeed.value.link);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function closeReader(): void {
+  viewerOpen.value = false;
+}
+
+function increaseFontSize(): void {
+  readingFontSize.value = Math.min(26, readingFontSize.value + 1);
+}
+
+function decreaseFontSize(): void {
+  readingFontSize.value = Math.max(14, readingFontSize.value - 1);
+}
+
+function resetFontSize(): void {
+  readingFontSize.value = 18;
+}
 </script>
 
 <template>
-    <n-list hoverable clickable>
-        <n-list-item v-for="feed in feeds_list" :key="feed.title">
-            <n-card v-bind:title="feed.title" style="width:500px; margin-bottom: 20px;" @click="read_feed(feed.link)">
-                <div style="font-size: 16px; color: #555;">{{ feed.description }}</div>
-            </n-card>
-        </n-list-item>
-    </n-list>
+  <n-spin :show="loading">
+    <n-empty v-if="!loading && feedsList.length === 0" description="目前沒有文章" size="large" />
 
-    <n-drawer v-model:show="active" resizable :default-width="600" placement="right">
-        <n-drawer-content v-bind:title="feed['title']" closable :native-scrollbar="false">
-            <n-button @click="openURL(feed['link'])">閱讀原文</n-button>
-            <div v-html="readHtml" style="line-height: 1.6; color: #333; padding: 10px;"></div>
-        </n-drawer-content>
-    </n-drawer>
+    <n-grid v-else :x-gap="16" :y-gap="16" cols="1 s:1 m:2 l:2 xl:3" responsive="screen">
+      <n-grid-item v-for="feed in feedsList" :key="feed.link + feed.title">
+        <n-card class="feed-card" hoverable @click="readFeed(feed)">
+          <n-flex vertical size="small">
+            <n-tag v-if="activeSourceTitle" round type="info">{{ activeSourceTitle }}</n-tag>
+            <h3 class="feed-title">{{ feed.title }}</h3>
+            <n-text depth="3" class="feed-description">
+              {{ feed.description || '無摘要資訊' }}
+            </n-text>
+            <n-text depth="3" class="feed-date">{{ feed.pubDate || '' }}</n-text>
+          </n-flex>
+        </n-card>
+      </n-grid-item>
+    </n-grid>
+  </n-spin>
+
+  <n-modal
+    v-model:show="viewerOpen"
+    preset="card"
+    class="reader-modal"
+    :bordered="false"
+    closable
+    @mask-click="closeReader"
+  >
+    <h1 class="reader-title" @click="openOriginal">
+      {{ readingFeed?.title || '文章閱讀' }}
+    </h1>
+
+    <n-flex class="font-controls" align="center" justify="end" size="small">
+      <n-button size="small" @click="decreaseFontSize">A-</n-button>
+      <n-button size="small" @click="resetFontSize">{{ readingFontSize }}px</n-button>
+      <n-button size="small" @click="increaseFontSize">A+</n-button>
+    </n-flex>
+
+    <n-spin :show="readerLoading">
+      <article class="reading-content" :style="{ fontSize: `${readingFontSize}px` }" v-html="readHtml"></article>
+    </n-spin>
+  </n-modal>
 </template>
 
-<style>
-.feeds {
-    background-color: #73AD21;
-    border-radius: 10px;
-    width: 600px;
-    max-height: 100%;
-    padding: 15px;
+<style scoped>
+.feed-card {
+  height: 100%;
+  border-radius: 14px;
+  border: 1px solid #e7eef7;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 }
-.image {
-    width: 100px;
+
+.feed-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(39, 64, 88, 0.12);
 }
-.abstract {
-    font-size: 20px;
+
+.feed-title {
+  margin: 0;
+  color: #1a3144;
+  line-height: 1.35;
+  font-size: 1rem;
+}
+
+.feed-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 3.9em;
+}
+
+.feed-date {
+  font-size: 0.78rem;
+}
+
+.reading-content {
+  max-width: 72ch;
+  margin: 0 auto;
+  line-height: 1.82;
+  color: #243446;
+}
+
+.reading-content :deep(img) {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+.reading-content :deep(pre) {
+  white-space: pre-wrap;
+}
+
+.reader-modal {
+  width: clamp(640px, 68vw, 860px);
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: 18px;
+  overflow: auto;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.reader-title {
+  margin: 0 0 16px;
+  color: #172c40;
+  font-size: 1.9rem;
+  line-height: 1.3;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(23, 44, 64, 0.25);
+  text-underline-offset: 5px;
+}
+
+.reader-title:hover {
+  color: #0f6fa2;
+  text-decoration-color: rgba(15, 111, 162, 0.45);
+}
+
+.font-controls {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 980px) {
+  .reader-modal {
+    width: 92vw;
+  }
 }
 </style>

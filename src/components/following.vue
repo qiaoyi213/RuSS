@@ -1,144 +1,130 @@
-<script lang="ts">
-import { NButton, NMenu, NDropdown } from "naive-ui";
-import { invoke } from '@tauri-apps/api/core';
-import { ref, defineEmits, defineComponent, reactive } from 'vue';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { NButton, NDropdown, NEmpty, NFlex, NScrollbar, NText } from 'naive-ui';
 
-export default defineComponent ({
-    emits: [
-        'changeSource',
-    ],
-    components: {
-        NButton,
-        NMenu,
-        NDropdown
-    },
-    methods: {
-        initSource(){
-            this.$emit('changeSource', this.sources);   
-        },
-        sourcesClick(source: any) {
-            this.$emit('changeSource', [source]); 
-        },
-        sourceHandler(sourceTitle: string) {
-            this.dropdownStatus[sourceTitle] = !this.dropdownStatus[sourceTitle];
-        }
-    },
-    setup(props, context) {
-        const sources = ref<{ sources: any[] }>({ sources: [] });
-        const selectedSource = ref<any>(null);
-        const dropdownStatus = reactive({});;
+interface Source {
+  title: string;
+  link: string;
+  description: string;
+}
 
-        const selectSource = (source: any) => {
-            selectedSource.value = source;
-            context.emit('changeSource', [source]);
-        };
+const props = defineProps<{
+  sources: Source[];
+  selectedSource: Source | null;
+}>();
 
-        const clearSelection = () => {
-            selectedSource.value = null;
-            context.emit('changeSource', sources.value.sources);
-        };
-        
+const emit = defineEmits<{
+  (event: 'select-source', source: Source): void;
+  (event: 'clear-source'): void;
+  (event: 'delete-source', source: Source): void;
+}>();
 
-        const handleSelect = (event, sourceTitle:string) => {
-            console.log(event)
-            console.log(sourceTitle)
-            if(event == "Delete") {
-                invoke('deleteSource', {title: sourceTitle})
-            }
-        }
+const hasSources = computed(() => props.sources.length > 0);
+const deleteOption = [{ label: '刪除來源', key: 'delete' }];
 
-        const options = [
-            {
-                label: '刪除',
-                key: 'Delete',
-                disabled: false
-            },
-        ]
-
-        invoke<string>('getSources')
-            .then((response: string) => {
-                sources.value = JSON.parse(response); 
-                console.log(sources.value.sources.length); 
-                for(let i=0;i<sources.value.sources.length;i++){
-                    console.log(sources.value.sources[i])
-                    dropdownStatus[sources.value.sources[i]['title']] = ref(false);
-                    console.log(dropdownStatus)
-                }
-                context.emit('changeSource', sources.value.sources); 
-            })
-            .catch((error: any) => {
-                console.error(error)
-            }); 
-        
-        document.addEventListener('click', () => {
-            for(let i=0;i<sources.value.sources.length;i++){
-                    dropdownStatus[sources.value.sources[i]['title']] = ref(false);
-            }
-        })
-
-        return {
-            sources,
-            selectedSource,
-            selectSource,
-            clearSelection,
-            dropdownStatus,
-            options,
-            handleSelect
-        }
-    }
-})
-
+function onDropdownSelect(key: string, source: Source): void {
+  if (key === 'delete') {
+    emit('delete-source', source);
+  }
+}
 </script>
 
 <template>
-    <div class="head"> 
-        <h1 class="following-title">Following</h1>
-    </div>
-    <div class="followings" @click="clearSelection">
-        <div class="following" v-for="source in sources.sources" :key="source.title" style="margin: 5px;">
-            <n-dropdown :show="dropdownStatus[source.title]" :options="options" @select="handleSelect($event, source.title)">
-                <n-button @contextmenu.prevent="sourceHandler(source.title)" @click.stop="selectSource(source)" :class="{'following-button': true, 'selected': selectedSource === source}">
-                    {{ source.title }}
-                </n-button>
-            </n-dropdown>
+  <section class="following-panel">
+    <n-flex justify="space-between" align="center" class="following-header">
+      <h3>Following</h3>
+      <n-button quaternary size="small" @click="emit('clear-source')">全部</n-button>
+    </n-flex>
+
+    <n-scrollbar style="max-height: calc(100vh - 310px)">
+      <div v-if="hasSources" class="source-list">
+        <div v-for="source in sources" :key="source.title" class="source-item">
+          <button
+            class="source-button"
+            :class="{ 'source-button--active': selectedSource?.title === source.title }"
+            @click="emit('select-source', source)"
+          >
+            <strong>{{ source.title }}</strong>
+            <n-text depth="3" class="source-desc">{{ source.description }}</n-text>
+          </button>
+
+          <n-dropdown trigger="click" :options="deleteOption" @select="onDropdownSelect($event as string, source)">
+            <n-button quaternary class="source-action">⋯</n-button>
+          </n-dropdown>
         </div>
-    </div>
+      </div>
+
+      <n-empty v-else description="尚未有 RSS 來源" class="empty-state" />
+    </n-scrollbar>
+  </section>
 </template>
 
-<style>
-.head {
-    background-color: #333;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
+<style scoped>
+.following-panel {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(211, 234, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px;
 }
-.following-title {
-    color: white;
-    font-size: 22px;
-    margin: 0;
+
+.following-header h3 {
+  margin: 0;
+  color: #eff8ff;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
 }
-.following {
-    border-radius: 5px;
-    padding: 5px;
+
+.source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.following-button {
-    background-color: #007BFF;
-    color: white;
-    width: 100%;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+
+.source-item {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
 }
-.following-button:hover {
-    background-color: #0056b3;
+
+.source-button {
+  flex: 1;
+  text-align: left;
+  border: 0;
+  cursor: pointer;
+  background: rgba(240, 250, 255, 0.08);
+  color: #eaf5ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: transform 0.15s ease, background-color 0.2s ease;
 }
-.selected {
-    background-color: #0056b3 !important;
+
+.source-button:hover {
+  transform: translateY(-1px);
+  background: rgba(240, 250, 255, 0.14);
 }
-.followings {
-    padding: 10px;
-    background-color: #f4f4f9;
-    border-radius: 10px;
-    max-height: 400px;
-    overflow-y: auto;
+
+.source-button--active {
+  background: linear-gradient(130deg, #1f95be 0%, #41b5d9 100%);
+  color: #ffffff;
+}
+
+.source-desc {
+  display: -webkit-box;
+  margin-top: 3px;
+  font-size: 0.78rem;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.source-action {
+  width: 36px;
+  border-radius: 10px;
+  color: #d6ecff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.empty-state {
+  margin: 18px 0;
 }
 </style>
