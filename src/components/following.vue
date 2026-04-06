@@ -61,15 +61,15 @@ function onDropdownSelect(key: string, source: Source): void {
 
 <style scoped>
 .following-panel {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(211, 234, 255, 0.1);
+  background: var(--following-panel-bg);
+  border: 1px solid var(--following-panel-border);
   border-radius: 14px;
   padding: 12px;
 }
 
 .following-header h3 {
   margin: 0;
-  color: #eff8ff;
+  color: var(--following-header-color);
   font-size: 1rem;
   letter-spacing: 0.02em;
 }
@@ -91,8 +91,8 @@ function onDropdownSelect(key: string, source: Source): void {
   text-align: left;
   border: 0;
   cursor: pointer;
-  background: rgba(240, 250, 255, 0.08);
-  color: #eaf5ff;
+  background: var(--source-button-bg);
+  color: var(--source-button-color);
   border-radius: 10px;
   padding: 10px 12px;
   transition: transform 0.15s ease, background-color 0.2s ease;
@@ -100,12 +100,12 @@ function onDropdownSelect(key: string, source: Source): void {
 
 .source-button:hover {
   transform: translateY(-1px);
-  background: rgba(240, 250, 255, 0.14);
+  background: var(--source-button-bg-hover);
 }
 
 .source-button--active {
-  background: linear-gradient(130deg, #1f95be 0%, #41b5d9 100%);
-  color: #ffffff;
+  background: var(--source-button-active-bg);
+  color: var(--source-button-active-color);
 }
 
 .source-desc {
@@ -120,8 +120,8 @@ function onDropdownSelect(key: string, source: Source): void {
 .source-action {
   width: 36px;
   border-radius: 10px;
-  color: #d6ecff;
-  background: rgba(255, 255, 255, 0.04);
+  color: var(--source-action-color);
+  background: var(--source-action-bg);
 }
 
 .empty-state {

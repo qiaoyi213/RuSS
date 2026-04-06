@@ -137,19 +137,19 @@ function resetFontSize(): void {
 .feed-card {
   height: 100%;
   border-radius: 14px;
-  border: 1px solid #e7eef7;
+  border: 1px solid var(--feed-card-border);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 }
 
 .feed-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(39, 64, 88, 0.12);
+  box-shadow: var(--feed-card-shadow-hover);
 }
 
 .feed-title {
   margin: 0;
-  color: #1a3144;
+  color: var(--feed-title-color);
   line-height: 1.35;
   font-size: 1rem;
 }
@@ -170,7 +170,7 @@ function resetFontSize(): void {
   max-width: 72ch;
   margin: 0 auto;
   line-height: 1.82;
-  color: #243446;
+  color: var(--reader-content-color);
 }
 
 .reading-content :deep(img) {
@@ -188,23 +188,23 @@ function resetFontSize(): void {
   max-height: 88vh;
   border-radius: 18px;
   overflow: auto;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  background: var(--reader-modal-bg);
 }
 
 .reader-title {
   margin: 0 0 16px;
-  color: #172c40;
+  color: var(--reader-title-color);
   font-size: 1.9rem;
   line-height: 1.3;
   cursor: pointer;
   text-decoration: underline;
-  text-decoration-color: rgba(23, 44, 64, 0.25);
+  text-decoration-color: var(--reader-title-underline);
   text-underline-offset: 5px;
 }
 
 .reader-title:hover {
-  color: #0f6fa2;
-  text-decoration-color: rgba(15, 111, 162, 0.45);
+  color: var(--reader-title-hover-color);
+  text-decoration-color: var(--reader-title-hover-underline);
 }
 
 .font-controls {

@@ -47,7 +47,7 @@ const contentMap: Record<SettingsTab, Component> = {
 <style scoped>
 .settings-shell {
   border-radius: 16px;
-  background: linear-gradient(160deg, #f6fbff 0%, #ffffff 45%, #f8fbff 100%);
+  background: var(--settings-shell-bg);
 }
 
 .settings-layout {

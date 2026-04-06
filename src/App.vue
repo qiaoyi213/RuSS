@@ -6,7 +6,9 @@ import {
   NAlert,
   NButton,
   NCard,
+  NConfigProvider,
   NFlex,
+  NGlobalStyle,
   NInput,
   NLayout,
   NLayoutContent,
@@ -15,10 +17,12 @@ import {
   NTag,
   NText,
   createDiscreteApi,
+  darkTheme,
 } from 'naive-ui';
 import Sidebar from './components/sidebar.vue';
 import Feeds from './components/feeds.vue';
 import Settings from './components/settings.vue';
+import { useTheme } from './composables/theme';
 
 interface Source {
   title: string;
@@ -47,6 +51,7 @@ const previewLoading = ref(false);
 
 const showSettings = ref(false);
 let unlistenSettings: null | (() => void) = null;
+const { isDarkMode, toggleDarkMode } = useTheme();
 
 const sourceCountLabel = computed(() => `${sources.value.length} sources`);
 const feedCountLabel = computed(() => `${feedsList.value.length} articles`);
@@ -187,110 +192,117 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <n-layout class="app-shell" has-sider>
-    <n-layout-sider class="left-panel" :width="300" collapse-mode="width" :native-scrollbar="false">
-      <div class="brand-block">
-        <h1>RuSS</h1>
-        <n-text depth="3">Read less noise, keep signal.</n-text>
-      </div>
+  <n-config-provider :theme="isDarkMode ? darkTheme : null">
+    <n-global-style />
 
-      <n-flex vertical size="small" class="action-row">
-        <n-button type="primary" size="large" @click="refreshFeeds">更新文章</n-button>
-        <n-button class="add-feed-btn" size="large" @click="openAddModal">新增 Feed 源</n-button>
-        <n-button tertiary class="settings-btn" size="large" @click="showSettings = true">設定</n-button>
-      </n-flex>
+    <n-layout class="app-shell" has-sider>
+      <n-layout-sider class="left-panel" :width="300" collapse-mode="width" :native-scrollbar="false">
+        <div class="brand-block">
+          <h1>RuSS</h1>
+          <n-text depth="3">Read less noise, keep signal.</n-text>
+        </div>
 
-      <n-flex class="meta-row" size="small">
-        <n-tag round>{{ sourceCountLabel }}</n-tag>
-        <n-tag round type="success">{{ feedCountLabel }}</n-tag>
-      </n-flex>
-
-      <sidebar
-        :sources="sources"
-        :selected-source="selectedSource"
-        @select-source="handleSelectSource"
-        @clear-source="handleClearSource"
-        @delete-source="handleDeleteSource"
-      />
-    </n-layout-sider>
-
-    <n-layout-content class="main-panel" :native-scrollbar="false">
-      <n-card class="feed-panel" :bordered="false">
-        <template #header>
-          <n-flex justify="space-between" align="center">
-            <div>
-              <h2 class="panel-title">文章列表</h2>
-              <n-text depth="3">
-                {{ selectedSource ? `目前來源：${selectedSource.title}` : '目前來源：全部' }}
-              </n-text>
-            </div>
-          </n-flex>
-        </template>
-
-        <feeds :feeds-list="feedsList" :loading="loadingFeeds" :active-source-title="selectedSource?.title ?? ''" />
-      </n-card>
-    </n-layout-content>
-  </n-layout>
-
-  <n-modal v-model:show="showAddSourceModal" preset="card" class="add-source-modal" title="新增 RSS 來源">
-    <n-flex vertical size="large">
-      <n-input
-        v-model:value="sourceInput"
-        clearable
-        placeholder="貼上 RSS URL，例如：https://example.com/feed.xml"
-        @blur="previewSource"
-      />
-
-      <n-button :loading="previewLoading" secondary @click="previewSource">預覽來源資訊</n-button>
-
-      <n-alert v-if="!sourcePreview && sourceInput" type="warning" :show-icon="false">
-        尚未取得來源資訊，請先預覽後再新增。
-      </n-alert>
-
-      <n-card v-if="sourcePreview" size="small" :bordered="false" class="preview-card">
-        <n-flex vertical size="small">
-          <strong>{{ sourcePreview.title }}</strong>
-          <n-text depth="3">{{ sourcePreview.description }}</n-text>
-          <n-text depth="3">{{ sourcePreview.link }}</n-text>
+        <n-flex vertical size="small" class="action-row">
+          <n-button type="primary" size="large" @click="refreshFeeds">更新文章</n-button>
+          <n-button class="add-feed-btn" size="large" @click="openAddModal">新增 Feed 源</n-button>
+          <n-button class="theme-btn" size="large" @click="toggleDarkMode">
+            {{ isDarkMode ? '切換為淺色模式' : '切換為深色模式' }}
+          </n-button>
+          <n-button tertiary class="settings-btn" size="large" @click="showSettings = true">設定</n-button>
         </n-flex>
-      </n-card>
 
-      <n-flex justify="end" size="small">
-        <n-button @click="showAddSourceModal = false">取消</n-button>
-        <n-button type="primary" :disabled="!sourcePreview" @click="addSource">新增</n-button>
+        <n-flex class="meta-row" size="small">
+          <n-tag round>{{ sourceCountLabel }}</n-tag>
+          <n-tag round type="success">{{ feedCountLabel }}</n-tag>
+        </n-flex>
+
+        <sidebar
+          :sources="sources"
+          :selected-source="selectedSource"
+          @select-source="handleSelectSource"
+          @clear-source="handleClearSource"
+          @delete-source="handleDeleteSource"
+        />
+      </n-layout-sider>
+
+      <n-layout-content class="main-panel" :native-scrollbar="false">
+        <n-card class="feed-panel" :bordered="false">
+          <template #header>
+            <n-flex justify="space-between" align="center">
+              <div>
+                <h2 class="panel-title">文章列表</h2>
+                <n-text depth="3">
+                  {{ selectedSource ? `目前來源：${selectedSource.title}` : '目前來源：全部' }}
+                </n-text>
+              </div>
+            </n-flex>
+          </template>
+
+          <feeds :feeds-list="feedsList" :loading="loadingFeeds" :active-source-title="selectedSource?.title ?? ''" />
+        </n-card>
+      </n-layout-content>
+    </n-layout>
+
+    <n-modal v-model:show="showAddSourceModal" preset="card" class="add-source-modal" title="新增 RSS 來源">
+      <n-flex vertical size="large">
+        <n-input
+          v-model:value="sourceInput"
+          clearable
+          placeholder="貼上 RSS URL，例如：https://example.com/feed.xml"
+          @blur="previewSource"
+        />
+
+        <n-button :loading="previewLoading" secondary @click="previewSource">預覽來源資訊</n-button>
+
+        <n-alert v-if="!sourcePreview && sourceInput" type="warning" :show-icon="false">
+          尚未取得來源資訊，請先預覽後再新增。
+        </n-alert>
+
+        <n-card v-if="sourcePreview" size="small" :bordered="false" class="preview-card">
+          <n-flex vertical size="small">
+            <strong>{{ sourcePreview.title }}</strong>
+            <n-text depth="3">{{ sourcePreview.description }}</n-text>
+            <n-text depth="3">{{ sourcePreview.link }}</n-text>
+          </n-flex>
+        </n-card>
+
+        <n-flex justify="end" size="small">
+          <n-button @click="showAddSourceModal = false">取消</n-button>
+          <n-button type="primary" :disabled="!sourcePreview" @click="addSource">新增</n-button>
+        </n-flex>
       </n-flex>
-    </n-flex>
-  </n-modal>
+    </n-modal>
 
-  <n-modal v-model:show="showSettings" preset="card" class="settings-modal" title="設定">
-    <settings @close="showSettings = false" />
-  </n-modal>
+    <n-modal v-model:show="showSettings" preset="card" class="settings-modal" title="設定">
+      <settings @close="showSettings = false" />
+    </n-modal>
+  </n-config-provider>
 </template>
 
 <style scoped>
 .app-shell {
   height: 100vh;
   overflow: hidden;
-  background: radial-gradient(circle at 20% 10%, #dff4f2 0%, #f3f8fd 40%, #f8f5f0 100%);
+  background: var(--app-shell-bg);
 }
 
 .left-panel {
   height: 100vh;
   padding: 24px 18px;
   overflow: hidden;
-  background: linear-gradient(160deg, #0f1720 0%, #142434 45%, #1b3349 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--left-panel-bg);
+  border-right: 1px solid var(--left-panel-border);
 }
 
 .brand-block h1 {
   margin: 0;
-  color: #ffffff;
+  color: var(--brand-title-color);
   letter-spacing: 0.04em;
   font-size: 1.7rem;
 }
 
 .brand-block :deep(.n-text) {
-  color: rgba(222, 239, 255, 0.72);
+  color: var(--brand-subtitle-color);
 }
 
 .action-row {
@@ -302,32 +314,42 @@ onBeforeUnmount(() => {
 }
 
 .add-feed-btn {
-  background: linear-gradient(135deg, #ff7a18 0%, #ff3d54 100%);
-  color: #fff;
+  background: var(--add-feed-btn-bg);
+  color: var(--add-feed-btn-color);
   border: 0;
   font-weight: 700;
-  box-shadow: 0 12px 24px rgba(255, 80, 80, 0.3);
+  box-shadow: var(--add-feed-btn-shadow);
 }
 
 .add-feed-btn:hover {
   filter: brightness(1.04);
 }
 
+.theme-btn {
+  background: var(--theme-btn-bg);
+  color: var(--theme-btn-color);
+  border: 1px solid var(--theme-btn-border);
+}
+
+.theme-btn:hover {
+  background: var(--theme-btn-bg-hover);
+}
+
 .settings-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e8f4ff;
-  border: 1px solid rgba(213, 235, 255, 0.25);
+  background: var(--settings-btn-bg);
+  color: var(--settings-btn-color);
+  border: 1px solid var(--settings-btn-border);
 }
 
 .settings-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--settings-btn-bg-hover);
 }
 
 .settings-btn:active,
 .settings-btn:focus,
 .settings-btn:focus-visible {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e8f4ff;
+  background: var(--settings-btn-bg);
+  color: var(--settings-btn-color);
   outline: none;
   box-shadow: none;
 }
@@ -345,15 +367,15 @@ onBeforeUnmount(() => {
 .feed-panel {
   min-height: auto;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.74);
+  background: var(--feed-panel-bg);
   backdrop-filter: blur(6px);
-  box-shadow: 0 16px 40px rgba(28, 65, 96, 0.12);
+  box-shadow: var(--feed-panel-shadow);
 }
 
 .panel-title {
   margin: 0;
   font-size: 1.5rem;
-  color: #1d2a3b;
+  color: var(--panel-title-color);
 }
 
 .add-source-modal,
@@ -363,7 +385,7 @@ onBeforeUnmount(() => {
 }
 
 .preview-card {
-  background: linear-gradient(145deg, #eef8ff 0%, #f7fbff 100%);
+  background: var(--preview-card-bg);
 }
 
 @media (max-width: 980px) {
