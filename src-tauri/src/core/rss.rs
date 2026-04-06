@@ -1,14 +1,12 @@
+use feed_rs::model::{Entry, Feed};
+use feed_rs::parser::Builder;
 use reqwest;
-use rss::Channel;
-use rss::ChannelBuilder;
-use rss::Item;
-use serde_json::{json,Value};
-use std::error::Error;
-use std::io::{Read, Write, BufReader};
-use serde::{Serialize, Deserialize};
-use std::fs::{self, File, OpenOptions};
-use std::vec::Vec;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+use std::fs::{File, OpenOptions};
+use std::io::{Read, Write};
 use std::path::Path;
+use std::vec::Vec;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Source {
@@ -22,24 +20,91 @@ pub struct SourcesFile {
     sources: Vec<Source>,
 }
 
+fn parse_feed(body: &[u8], base_uri: Option<&str>) -> Result<Feed, String> {
+    Builder::new()
+        .base_uri(base_uri)
+        .build()
+        .parse(body)
+        .map_err(|e| e.to_string())
+}
+
+fn entry_title(entry: &Entry) -> String {
+    entry
+        .title
+        .as_ref()
+        .map(|t| t.content.clone())
+        .unwrap_or_default()
+}
+
+fn entry_link(entry: &Entry) -> String {
+    if let Some(link) = entry
+        .links
+        .iter()
+        .find(|l| l.rel.as_deref() == Some("alternate") && l.media_type.as_deref() == Some("text/html"))
+    {
+        return link.href.clone();
+    }
+
+    if let Some(link) = entry.links.iter().find(|l| l.rel.as_deref() == Some("alternate")) {
+        return link.href.clone();
+    }
+
+    if let Some(link) = entry
+        .links
+        .iter()
+        .find(|l| l.rel.is_none() && l.media_type.as_deref() == Some("text/html"))
+    {
+        return link.href.clone();
+    }
+
+    if let Some(link) = entry.links.iter().find(|l| l.rel.is_none()) {
+        return link.href.clone();
+    }
+
+    entry
+        .links
+        .first()
+        .map(|l| l.href.clone())
+        .unwrap_or_default()
+}
+
+fn entry_pub_date(entry: &Entry) -> String {
+    entry
+        .published
+        .or(entry.updated)
+        .map(|d| d.to_rfc2822())
+        .unwrap_or_default()
+}
+
+fn entry_description(entry: &Entry) -> String {
+    if let Some(summary) = &entry.summary {
+        return summary.content.clone();
+    }
+
+    if let Some(content) = &entry.content {
+        if let Some(body) = &content.body {
+            return body.clone();
+        }
+    }
+
+    String::new()
+}
+
 #[tauri::command]
 pub fn example_feed(url: String) -> Result<Vec<String>, String> {
-    let response = reqwest::blocking::get(url);
+    let response = reqwest::blocking::get(&url);
     match response {
         Ok(resp) => {
-            let body = resp.text().unwrap_or_else(|_| "".to_string());
-
-            let channel = Channel::read_from(body.as_bytes()).map_err(|e| e.to_string())?;
-            println!("{}", channel.title().to_string());
-            let items = channel.items.clone();
+            let body = resp.bytes().map_err(|e| e.to_string())?;
+            let feed = parse_feed(body.as_ref(), Some(&url))?;
             let mut feeds = Vec::new();
 
-            for item in items.iter() {
+            for entry in &feed.entries {
                 let json = json!({
-                    "title": item.title.as_ref().unwrap(),
-                    "link": item.link.as_ref().unwrap(),
-                    "pubDate": item.pub_date.as_ref().unwrap(),
-                    "description": item.description.as_ref().unwrap()
+                    "title": entry_title(entry),
+                    "link": entry_link(entry),
+                    "pubDate": entry_pub_date(entry),
+                    "description": entry_description(entry)
                 });
                 feeds.push(json.to_string());
             }
@@ -64,17 +129,23 @@ pub fn getSourceInfo(url: String) -> Result<String, String> {
     let response = reqwest::blocking::get(url.clone());
     match response {
         Ok(resp) => {
-            let body = resp.text().unwrap_or_else(|_| "".to_string());
-            let channel = Channel::read_from(body.as_bytes()).map_err(|e| e.to_string())?;
-                
+            let body = resp.bytes().map_err(|e| e.to_string())?;
+            let feed = parse_feed(body.as_ref(), Some(&url))?;
+
             let source = Source {
-                title: channel.title,
-                description: channel.description,
+                title: feed
+                    .title
+                    .as_ref()
+                    .map(|t| t.content.clone())
+                    .unwrap_or_default(),
+                description: feed
+                    .description
+                    .as_ref()
+                    .map(|d| d.content.clone())
+                    .unwrap_or_default(),
                 link: url.clone()
             };
-            let mut ans = String::new();
-            
-            ans = serde_json::to_string_pretty(&source).map_err(|e| e.to_string())?;
+            let ans = serde_json::to_string_pretty(&source).map_err(|e| e.to_string())?;
 
             Ok(ans)  
         }
@@ -166,4 +237,3 @@ pub fn deleteSource(title: String) -> Result<(), String> {
         Ok(())
     }
 }
-

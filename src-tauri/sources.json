@@ -19,6 +19,11 @@
       "title": "即時新聞 - 自由時報",
       "description": "自由時報電子報 即時新聞",
       "link": "https://news.ltn.com.tw/rss/all.xml"
+    },
+    {
+      "title": "清大彭明輝的部落格",
+      "description": "吃台灣米，讀古今中外書，思索台灣的未來；\n\n善待自己、善待鄰人、善待土地",
+      "link": "https://mhperng.blogspot.com/feeds/posts/default"
     }
   ]
 }
