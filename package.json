@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@tauri-apps/api": "^2.2.0",
-    "@tauri-apps/cli": "^1",
+    "@tauri-apps/cli": "^2.2.0",
     "@vitejs/plugin-vue": "^5.0.4",
     "naive-ui": "^2.41.0",
     "vfonts": "^0.0.3",
