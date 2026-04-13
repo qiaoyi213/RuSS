@@ -5,14 +5,13 @@
 -   [x] Reading feeds
 -   [x] Feeds subscription
 -   [ ] Auto-Update
--   [ ] Dark Mode
--   [x] Focus Mode
--   [ ] Sync with Pocket
--   [ ] AI conclude todays news
+-   [x] Dark Mode
+-   [ ] Sync with Instapper or google drive
+-   [ ] refactor the code
+-   [ ] implement ios mode
+-   [ ] add some preview image or description
+-   [ ] Implement setting page
+-   [ ] Testing
+-   [ ] fast loading when launch
+-   [ ] styling the reader
 
-## todos
-
--   build MVP
--   fresh the page accroding the rss sources passing from App.vue
--   Implement setting page
--   Implement Window Menu

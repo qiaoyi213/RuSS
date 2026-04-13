@@ -2,9 +2,9 @@
     "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
     "productName": "RuSS",
     "version": "0.1.0",
-    "identifier": "com.tauri.dev",
+    "identifier": "com.lqy.dev",
     "build": {
-        "frontendDist": "..",
+        "frontendDist": "../dist",
         "devUrl": "http://localhost:5173",
         "beforeDevCommand": "npm run dev",
         "beforeBuildCommand": "npm run build"
