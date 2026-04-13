@@ -1,48 +1,59 @@
 pub mod core;
 
-use tauri::{
-    menu::{AboutMetadata, MenuBuilder, MenuItemBuilder, SubmenuBuilder},
-    Emitter,
-};
-
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[cfg(desktop)]
+fn setup_app_menu(app: &mut tauri::App) -> tauri::Result<()> {
+    use tauri::{
+        menu::{AboutMetadata, MenuBuilder, MenuItemBuilder, SubmenuBuilder},
+        Emitter,
+    };
+
+    let settings = MenuItemBuilder::new("Settings...")
+        .id("settings")
+        .accelerator("CmdOrCtrl+,")
+        .build(app)?;
+
+    let app_submenu = SubmenuBuilder::new(app, "App")
+        .about(Some(AboutMetadata {
+            ..Default::default()
+        }))
+        .separator()
+        .item(&settings)
+        .separator()
+        .services()
+        .separator()
+        .hide()
+        .hide_others()
+        .quit()
+        .build()?;
+
+    let menu = MenuBuilder::new(app).items(&[&app_submenu]).build()?;
+    app.set_menu(menu)?;
+
+    app.on_menu_event(move |app, event| {
+        if event.id() == settings.id() {
+            let _ = app.emit("settings", "/settings");
+            println!("Click");
+        }
+    });
+
+    Ok(())
+}
+
+#[cfg(not(desktop))]
+fn setup_app_menu(_app: &mut tauri::App) -> tauri::Result<()> {
+    Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            let settings = MenuItemBuilder::new("Settings...")
-                .id("settings")
-                .accelerator("CmdOrCtrl+,")
-                .build(app)?;
-
-            let app_submenu = SubmenuBuilder::new(app, "App")
-                .about(Some(AboutMetadata {
-                    ..Default::default()
-                }))
-                .separator()
-                .item(&settings)
-                .separator()
-                .services()
-                .separator()
-                .hide()
-                .hide_others()
-                .quit()
-                .build()?;
-
-            let menu = MenuBuilder::new(app).items(&[&app_submenu]).build()?;
-            app.set_menu(menu)?;
-
-            app.on_menu_event(move |app, event| {
-                if event.id() == settings.id() {
-                    let _ = app.emit("settings", "/settings");
-                    println!("Click");
-                }
-            });
-
+            setup_app_menu(app)?;
             Ok(())
         })
         .plugin(tauri_plugin_http::init())
